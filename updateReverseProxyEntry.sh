@@ -6,22 +6,23 @@
 # This script is updating the /etc/nginx/app.d/server.ReverseProxy.conf
 # from a synology diskstation (version 6.x and higher). This update is
 # necessary for all docker containers from https://hub.docker.com/u/jlesage
-# to work properly behind a reverse proxy.
+# to work properly.
 # 
 # Be aware!: After changing anything regarding the reverse proxy in DSM
 # /etc/nginx/app.d/server.ReverseProxy.conf got overwritten!!! and this
-# script needs to be executed again!!!
+# script has to be executed again!!!
 #
 # Usage:
 # 1. enter your fqdn below
 # 2. enter reverse proxy entries which need to be updated below
-# 3. save this script somewhere to your nas
-# 4. make sure admin, respectively root can at least read and execute (-r-x------ admin users updateReverseProxyEntry.sh)
-# 5. create a new scheduled task -> User-defined script with: user = root, activated = no, 
+# 3. enter a backup location below
+# 4. save this script somewhere to your nas
+# 5. make sure admin, respectively root can at least read and execute (-r-x------ admin users updateReverseProxyEntry.sh)
+# 6. create a new scheduled task -> User-defined script with: user = root, activated = no, 
 #    path = path to your script location e.g.: /volume1/documents/scripts/updateReverseProxyEntry.sh
 # 
-# 6. execute this script after changing anything regarding the reverse proxy in DSM e.g.: adding/changing an entry
-# 7. DONE!
+# 7. execute this script after changing anything regarding the reverse proxy in DSM e.g.: adding/changing an entry
+# 8. DONE!
 
 ### !!! Change to your own !!! ###
 fqdn="3x3cut0r.synology.me" # your Full Qualified Domain Name e.g.: "diskstation.synology.me"
@@ -29,6 +30,7 @@ rpEntries=(	# reverse proxy entrys that need to be updated e.g.: "firefox"
 	"filezilla"
 	"firefox"
 )
+backupPath="/volume1/backup/nginx/" # backup path
 
 ### Don't change anything below !!! ###
 nginxPath="/etc/nginx/" # nginx path
@@ -38,6 +40,12 @@ configFile="server.ReverseProxy.conf" # reverse proxy config file
 path="$nginxPath$proxyPath$configFile" # path of reverse proxy entrys
 tmpFile="/tmp/rpTmpFile" # path of a temporary file
 nginxReloadRequired=0 # if 1, then nginx need to be reloaded
+
+makeConfigBackup (){
+	mkdir -p $backupPath$proxyPath
+	cp $nginxPath$proxyPath$configFile $backupPath$proxyPath
+	echo "$configFile copied to $backupPath$proxyPath"
+}
 
 returnProxyPass (){ # give reverse proxy entry
 	pattern="server_name $1.$fqdn" # search pattern -> need to be unique
@@ -150,6 +158,7 @@ updateReverseProxyEntry (){ # give unique!! name of reverse proxy entry as param
 	fi
 }
 
+makeConfigBackup
 createLocationFolder
 for entry in "${rpEntries[@]}"; do # for every entry in array rpEntries[]
     updateReverseProxyEntry "$entry" # update entry
