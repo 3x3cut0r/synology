@@ -16,13 +16,15 @@
 # 1. enter your fqdn below
 # 2. enter reverse proxy entries which need to be updated below
 # 3. enter a backup location below
-# 4. save this script somewhere to your nas
+# 4. save this script somewhere on your nas
 # 5. make sure admin, respectively root can at least read and execute (-r-x------ admin users updateReverseProxyEntry.sh)
 # 6. create a new scheduled task -> User-defined script with: user = root, activated = no, 
 #    path = path to your script location e.g.: /volume1/documents/scripts/updateReverseProxyEntry.sh
 # 
 # 7. execute this script after changing anything regarding the reverse proxy in DSM e.g.: adding/changing an entry
 # 8. DONE!
+
+### global vars ###
 
 ### !!! Change to your own !!! ###
 fqdn="3x3cut0r.synology.me" # your Full Qualified Domain Name e.g.: "diskstation.synology.me"
@@ -40,6 +42,8 @@ configFile="server.ReverseProxy.conf" # reverse proxy config file
 path="$nginxPath$proxyPath$configFile" # path of reverse proxy entrys
 tmpFile="/tmp/rpTmpFile" # path of a temporary file
 nginxReloadRequired=0 # if 1, then nginx need to be reloaded
+
+### function section ###
 
 makeConfigBackup (){
 	mkdir -p $backupPath$proxyPath
@@ -157,6 +161,8 @@ updateReverseProxyEntry (){ # give unique!! name of reverse proxy entry as param
 		nginxReloadRequired+=1 # nginx need to be reloaded
 	fi
 }
+
+### script ###
 
 makeConfigBackup
 createLocationFolder
