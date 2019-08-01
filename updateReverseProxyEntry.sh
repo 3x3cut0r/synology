@@ -24,7 +24,7 @@
 # 7. execute this script after changing anything regarding the reverse proxy in DSM e.g.: adding/changing an entry
 # 8. DONE!
 
-### global vars ###
+### GLOBAL VARS ###
 
 ### !!! Change to your own !!! ###
 fqdn="3x3cut0r.synology.me" # your Full Qualified Domain Name e.g.: "diskstation.synology.me"
@@ -43,9 +43,9 @@ path="$nginxPath$proxyPath$configFile" # path of reverse proxy entrys
 tmpFile="/tmp/rpTmpFile" # path of a temporary file
 nginxReloadRequired=0 # if 1, then nginx need to be reloaded
 
-### function section ###
+### FUNCTIONS ###
 
-makeConfigBackup (){
+makeConfigBackup (){ # make a backup of the original config
 	mkdir -p $backupPath$proxyPath
 	cp $nginxPath$proxyPath$configFile $backupPath$proxyPath
 	echo "$configFile copied to $backupPath$proxyPath"
@@ -97,7 +97,7 @@ createLocationFile (){ # give reverse proxy entry which need to be (re)created
 	fi
 }
 
-createLocationFolder (){
+createLocationFolder (){ # create the location folder for additional reverse proxy configuration
 	folderPath="/var/tmp/nginx/"
 	folder="$folderPath$locationPath"
 	if [ ! -d "$folder" ]; then
@@ -162,17 +162,17 @@ updateReverseProxyEntry (){ # give unique!! name of reverse proxy entry as param
 	fi
 }
 
-### script ###
+### START OF SCRIPT ###
 
-makeConfigBackup
-createLocationFolder
+makeConfigBackup # make a backup of the original config. location see function
+createLocationFolder # create the location folder for additional reverse proxy configuration
 for entry in "${rpEntries[@]}"; do # for every entry in array rpEntries[]
     updateReverseProxyEntry "$entry" # update entry
 done
-if [ $nginxReloadRequired -ge 1 ]; then
+if [ $nginxReloadRequired -ge 1 ]; then # check if nginx need to be reloaded
 	echo "nginx reload required"
 	echo "reloading nginx"
-	nginx -s reload
+	nginx -s reload # perform nginx reload
 	nginxReloadRequired=0
 else
 	echo "nginx reload NOT required"
