@@ -1,0 +1,50 @@
+### mongo ###     
+
+### Network ###
+
+docker network create mongo-net
+
+### MongoDB ###
+# https://hub.docker.com/_/mongo
+
+# create a "mongod.conf" file in "/volume1/docker/mongo/etc/":
+#   _________________________
+#  | replication:
+#  |     replSetName: "rs0"
+#  | net:
+#  |     bindIp: "localhost"
+#  |
+
+docker container run -d --restart=always \
+    --name=mongo \
+    --network mongo-net \
+    -p 27017:27017 \
+    -v /volume1/docker/mongo/etc/mongod.conf:/etc/mongod.conf \
+    -v /volume1/docker/mongo/data:/data/db \
+    mongo:4.0.18 \
+    --config /etc/mongod.conf \
+    --smallfiles \
+    --replSet rs0 \
+    --oplogSize 128 \
+    --bind_ip_all
+  
+# Initialise ReplSet "rs0" on the first time
+docker container exec -it mongo mongo --eval "printjson(rs.initiate())"
+
+# Fix replSet Errors after Update #
+    # Re-Initialise replSet after Errors like "getaddrinfo not found ..." or " host is not a member of replSet":
+    docker container stop mongo
+    docker container rm mongo
+    # - start mongo container without "-v /volume1/docker/mongo/etc/mongod.conf:/etc/mongod.conf" AND without "--replSet rs0"
+    docker container ls | grep mongo
+    docker container exec -it <mongo id> /bin/bash
+    mongo
+    use local
+    db.system.replset.remove({})
+    exit
+    exit
+    docker container stop mongo
+    docker container rm mongo
+    # - start mongo container normaly like above (with "-v ..." AND "--replSet rs0" ...)
+    # - check logs for "[replexec-0] This node is localhost:27017 in the config"
+    
