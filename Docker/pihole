@@ -1,0 +1,25 @@
+### pihole ###
+
+### Network ###
+
+docker network create pihole-net
+
+### pihole ###
+# https://hub.docker.com/r/pihole/pihole
+
+docker container run -d \
+    --name=pihole \
+    --network pihole-net \
+    -e TZ='Europe/Berlin' \
+    -e ServerIP='192.168.178.254' \
+    -e WEBPASSWORD='WEBPASSWORD' \
+    -e DNS1='8.8.8.8' \
+    -e DNS2='1.1.1.1' \
+    -p 80:80 \
+    -p 443:443 \
+    -p 53:53/tcp \
+    -p 53:53/udp \
+    -p 67:67/udp \
+    -v /volume1/docker/pihole/dnsmasq.d:/etc/dnsmasq.d \
+    -v /volume1/docker/pihole/pihole:/etc/pihole \
+    pihole/pihole:v4.4-amd64
