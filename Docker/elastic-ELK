@@ -1,0 +1,82 @@
+### Elastic-ELK ###
+
+### Network ###
+
+docker network create elastic-net
+
+### Elasticsearch ###
+# https://hub.docker.com/_/elasticsearch
+docker container run -d --restart=always \
+    --name=elasticsearch \
+    --network elastic-net \
+    -e "discovery.type=single-node" \
+    -p 9200:9200 \
+    -p 9300:9300 \
+    elasticsearch:7.6.2
+    
+### Kibana ###
+# https://hub.docker.com/_/kibana
+docker container run -d --restart=always \
+    --name=elastic-kibana \
+    --network elastic-net \
+    -p 5601:5601 \
+    -v /volume1/docker/elastic-kibana/kibana.yml:/usr/share/kibana/config/kibana.yml \
+    kibana:7.6.2
+    
+# /usr/share/kibana/config/kibana.yml # (chown 1000:0 kibana.yml)
+server.name: kibana
+server.host: "0"
+elasticsearch.hosts: [ "http://elasticsearch:9200" ]
+elasticsearch.username: "kibana"
+elasticsearch.password: "kibanapassword"
+xpack.monitoring.ui.container.elasticsearch.enabled: true
+    
+### Logstash ###
+# https://hub.docker.com/_/logstash
+docker container run -d --restart=always \
+    --name=elastic-logstash \
+    --network elastic-net \
+    -p 5044:5044 \
+    -v /volume1/docker/elastic-logstash/pipeline:/usr/share/logstash/pipeline/ \
+    logstash:7.6.2
+    
+# /usr/share/logstash/pipeline/logstash.conf # (chown 1000:0 logstash.conf)
+input {
+  beats {
+    port => 5044
+  }
+}
+
+output {
+  elasticsearch { hosts => ["elasticsearch:9200"] }
+}
+
+### Filebeat ###
+# https://hub.docker.com/r/elastic/filebeat
+docker container run -d --restart=always \
+    --name=elastic-filebeat \
+    --network elastic-net \
+    --user=root \
+    -v /volume1/docker/elastic-filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro \
+    -v /var/log/nginx/access_dsm.log:/usr/share/filebeat/logs/access.log:ro \
+    -v /volume1/@appstore/Docker/docker/containers:/var/lib/docker/containers:ro \
+    -v /var/run/docker.sock:/var/run/docker.sock:ro \
+    elastic/filebeat:7.6.2
+    
+# /usr/share/filebeat/filebeat.yml #
+filebeat.inputs:
+- type: docker
+  containers.ids: '*'
+  json.message_key: message
+  json.keys_under_root: true
+  json.add_error_key: true
+  json.overwrite_keys: true
+
+processors:
+- add_docker_metadata: ~
+
+output.logstash:
+  hosts: ["elastic-logstash:5044"]
+
+logging.to_files: true
+logging.to_syslog: false
