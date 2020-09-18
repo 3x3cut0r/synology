@@ -1,0 +1,53 @@
+### TvHeadend ###
+
+### Network ###
+
+docker network create tvheadend-net
+
+### TvHeadend ###
+# https://hub.docker.com/r/linuxserver/tvheadend
+  
+docker container run -d --restart always \
+    --name tvheadend \
+    --network tvheadend-net \
+    -e PUID=1024 \
+    -e PGID=100 \
+    -e TZ=Europe/Berlin \
+    -p 9981:9981 \
+    -p 9982:9982 \
+    -v /volume1/video/recordings/tvheadend:/recordings \
+    -v /volume1/docker/tvheadend/config:/config \
+    -v /volume1/docker/tvheadend/picons:/picons \
+    -v /volume1/docker/tvheadend/sundtek:/sundtek \
+    -v /etc/localtime:/etc/localtime:ro \
+    --device /dev/dri:/dev/dri \
+    --device /dev/dvb:/dev/dvb \
+    --device=/dev/bus/usb \
+    linuxserver/tvheadend:amd64-latest
+
+# making Sundtek TV Ultimate 8 available #
+docker container exec -it $(docker container ls -q --filter=name=tvheadend) /bin/bash
+/sundtek/sundtek_netinst.sh -docker -use-custom-path=/sundtek
+exit
+docker container restart tvheadend
+
+# channels.m3u playlist download - all channels #
+wget --user=tvh --password=G8ekU38QWY7jyknU http://3x3cut0r.synology.me:9981/playlist/channels.m3u?profile=pass
+wget --user=tvh --password=G8ekU38QWY7jyknU http://3x3cut0r.synology.me:9981/playlist/channels.m3u?profile=htsp
+
+### OScam ###
+# https://hub.docker.com/r/linuxserver/oscam
+  
+docker container run -d --restart always \
+    --network tvheadend-net \
+    --name oscam \
+    -e PUID=1024 \
+    -e PGID=100 \
+    -e TZ=Europe/Berlin \
+    -p 8888:8888 \
+    -v /volume1/docker/oscam/config:/config \
+    linuxserver/oscam:amd64-latest
+
+# Container löschen #
+docker image rm -f linuxserver/oscam:amd64-latest
+docker image rm -f linuxserver/tvheadend:amd64-latest
