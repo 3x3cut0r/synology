@@ -1,0 +1,42 @@
+### Mautrix-Whatsapp ###
+
+### Network ###
+# requires synapse-net
+# see synapse
+#
+# requires postgres-net
+# see postgres
+
+### Mautrix-Whatsapp ###
+# https://github.com/tulir/mautrix-whatsapp/wiki/Bridge-setup-with-Docker
+
+# 1. initial configuration #
+docker run --rm \
+    --name=mautrix-whatsapp \
+    --network postgres-net \
+    -v /volume1/docker/mautrix-whatsapp:/data:z \
+    dock.mau.dev/tulir/mautrix-whatsapp:latest
+
+# 2. config anpassen #
+# /data/config.yaml anpassen #
+
+# 3. generate registration.yaml #
+docker run --rm \
+    --name=mautrix-whatsapp \
+    --network postgres-net \
+    -v /volume1/docker/mautrix-whatsapp:/data:z \
+    dock.mau.dev/tulir/mautrix-whatsapp:latest
+
+# 4. copy registration.yaml to synapse docker container /data/mautrix-whatsapp/registration.yaml #
+
+# 5. run mautrix-whatsapp bridge #
+docker container run -d --restart=always \
+    --name=mautrix-whatsapp \
+    --network synapse-net \
+    -p 29318:29318 \
+    -v /volume1/docker/mautrix-whatsapp:/data:z \
+    dock.mau.dev/tulir/mautrix-whatsapp:latest
+
+# connect mautrix-whatsapp to postgres-net
+
+docker network connect postgres-net mautrix-whatsapp
