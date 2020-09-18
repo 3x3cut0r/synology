@@ -1,0 +1,18 @@
+### Docker Prune ###
+
+### Docker Prune ###
+# https://hub.docker.com/r/izonder/prune
+
+### Docker Prune - System ###
+# WARNING! This will remove:
+#        - all stopped containers
+#        - all networks not used by at least one container
+#        - all unuesd images
+#        - all unused volumes
+#        - all build cache
+docker run \
+    --rm \
+    -it \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    izonder/prune:latest \
+    -a --volumes
