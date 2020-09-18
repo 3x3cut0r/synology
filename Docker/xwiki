@@ -1,0 +1,26 @@
+### XWiki ###
+
+### Network ###
+# require mariadb10-net
+# see mariadb10
+#
+
+docker network create xwiki-net
+
+### XWiki ###
+# https://hub.docker.com/_/nextcloud
+
+docker container run -d --restart=always \
+    --name=xwiki \
+    --network mariadb10-net \
+    -e DB_USER=xwiki \
+    -e DB_PASSWORD='MYSQL_XWIKI_PASSWORD' \
+    -e DB_DATABASE=xwiki \
+    -e DB_HOST=mariadb10 \
+    -p 8086:8080 \
+    -v /volume1/docker/xwiki:/usr/local/xwiki \
+    xwiki:12.5.1
+
+# connect xwiki to xwiki-net
+
+docker network connect xwiki-net xwiki
