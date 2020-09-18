@@ -1,0 +1,13 @@
+### Synology SPK's ###
+
+### sspks ###
+# https://hub.docker.com/r/jdel/sspks
+
+docker container run -d --restart=always \
+    --name sspks \
+    -v /volume1/docker/sspks/packages:/packages \
+    -v /volume1/docker/sspks/cache:/cache \
+    -p 8080:8080 \
+    -e SSPKS_SITE_NAME="Synology Packages" \
+    -e SSPKS_PACKAGES_DISTRIBUTOR_URL=https://sspks.example.com \
+    jdel/sspks:v1.1.4
