@@ -1,0 +1,91 @@
+### Nextcloud ###
+
+### Network ###
+# require mariadb10-net
+# see mariadb10
+#
+# require redis-net
+# see redis
+
+docker network create nextcloud-net
+
+### Nextcloud ###
+# https://hub.docker.com/_/nextcloud
+
+docker container run -d --restart=always \
+    --name=nextcloud \
+    --network mariadb10-net \
+    -e MYSQL_DATABASE=nextcloud \
+    -e MYSQL_USER=nextcloud \
+    -e MYSQL_PASSWORD='MYSQL_NEXTCLOUD_PASSWORD' \
+    -e MYSQL_HOST=mariadb10 \
+    -e REDIS_HOST=redis \
+    -e REDIS_HOST_PORT=6379 \
+    -e REDIS_HOST_PASSWORD='REDIS_PASSWORD' \
+    -p 80:80 \
+    -p 443:443 \
+    -v /volume1/docker/nextcloud/sites-available/000-default.conf:/etc/apache2/sites-available/000-default.conf \
+    -v /volume1/docker/nextcloud/nextcloud:/var/www/html \
+    -v /volume1/docker/nextcloud/data:/var/www/html/data \
+    -v /volume1/docker/nextcloud/php/php.ini:/usr/local/etc/php/conf.d/php-filesize.ini \
+    nextcloud:19.0.3-apache
+
+# connect nextcloud to nextcloud-net, redis-net
+
+docker network connect nextcloud-net nextcloud
+docker network connect redis-net nextcloud
+
+### Onlyoffice-Documentserver ###
+# https://hub.docker.com/r/onlyoffice/documentserver
+
+docker container run -d --restart=always \
+    --name=nextcloud-onlyoffice-documentserver \
+    --network nextcloud-net \
+    -p 2081:80 \
+    -p 4081:443 \
+    -v /volume1/docker/nextcloud-onlyoffice-documentserver/Data:/var/www/onlyoffice/Data \
+    -v /volume1/docker/nextcloud-onlyoffice-documentserver/log:/var/log/onlyoffice \
+    onlyoffice/documentserver:5.6.4.20
+
+### /var/www/html/config/config.php ###
+...
+  'redis' =>
+  array (
+    'host' => 'redis',
+    'password' => 'REDIS_PASSWORD',
+    'port' => 6379,
+  ),
+...
+  'trusted_proxies' =>
+  array (
+  	0 => '192.168.1.254'
+  ),
+...
+  'trusted_domains' =>
+  array (
+    0 => 'nextcloud.example.com',
+  ),
+...
+  'overwriteprotocol' => 'https',
+  'overwritehost' => 'nextcloud.example.com',
+  'overwrite.cli.url' => 'https://nextcloud.example.com',
+...
+  'onlyoffice' =>
+  array (
+    'verify_peer_off' => true,
+  ),
+...
+
+### /etc/apache2/sites-available/000-default.conf ###
+...
+ServerAdmin admin@example.com
+	DocumentRoot /var/www/html
+...
+	RewriteEngine On
+	RewriteRule ^/\.well-known/carddav https://nextcloud.3x3cut0r.synology.me/remote.php/dav/ [R=301,L]
+	RewriteRule ^/\.well-known/caldav https://nextcloud.3x3cut0r.synology.me/remote.php/dav/ [R=301,L]
+...
+
+### Maintenance Mode ###
+docker container exec -u www-data -it nextcloud php occ maintenance:mode --on
+docker container exec -u www-data -it nextcloud php occ maintenance:mode --off
