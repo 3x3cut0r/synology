@@ -17,4 +17,4 @@ docker container run -d \
     -e MONGO_URL='mongodb://mongo:27017/wekan' \
     -e ROOT_URL='https://wekan.example.com' \
     -p 8080:8080 \
-    wekanteam/wekan:v3.97
+    wekanteam/wekan:v4.40
