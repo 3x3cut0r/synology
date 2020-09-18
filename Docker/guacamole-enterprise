@@ -1,0 +1,44 @@
+### Guacamole ###
+
+### Network ###
+
+docker network create guacamole-net
+
+### Guacd ###
+# https://hub.docker.com/r/glyptodon/guacd
+
+docker container run -d --restart=always \
+    --name=guacamole-guacd \
+    --network guacamole-net \
+    -e ACCEPT_EULA=Y \
+    -p 4822:4822 \
+    glyptodon/guacd:1.12
+
+### Guacamole-DB-MySQL ###
+# https://hub.docker.com/r/glyptodon/guacamole-db-mysql
+
+docker container run -d --restart=always \
+    --name=guacamole-db-mysql \
+    --network guacamole-net \
+    -e ACCEPT_EULA=Y \
+    -e MYSQL_RANDOM_ROOT_PASSWORD=yes \
+    -e GUACAMOLE_DATABASE=guacamole \
+    -e GUACAMOLE_USERNAME=guacamole \
+    -e GUACAMOLE_PASSWORD='MYSQL_GUACAMOLE_PASSWORD' \
+    -v /volume1/docker/guacamole-enterprise:/var/lib/mysql \
+    glyptodon/guacamole-db-mysql:1.12
+
+### Guacamole ###
+# https://hub.docker.com/r/glyptodon/guacamole
+
+docker container run -d --restart=always \
+    --name guacamole \
+    --network guacamole-net \
+    -e ACCEPT_EULA=Y \
+    -e GUACD_HOSTNAME=guacamole-guacd \
+    -e MYSQL_HOSTNAME=guacamole-db-mysql \
+    -e MYSQL_DATABASE='guacamole' \
+    -e MYSQL_USERNAME='guacamole' \
+    -e MYSQL_PASSWORD='MYSQL_GUACAMOLE_PASSWORD' \
+    -p 8080:8080 \
+    glyptodon/guacamole:1.12
