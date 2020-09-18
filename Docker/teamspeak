@@ -1,0 +1,33 @@
+### TeamSpeak 3 ###
+
+### Network ###
+
+docker network create teamspeak-net
+
+### MariaDB 10 ###
+# requires mariadb10
+# see mariadb10
+
+### TeamSpeak ###
+# https://hub.docker.com/_/teamspeak
+
+docker container run -d --restart=always \
+    --name teamspeak \
+    --network mariadb10-net \
+    -e TS3SERVER_LICENSE=accept \
+    -e TS3SERVER_LICENSEPATH='/var/ts3server' \
+    -e TS3SERVER_DB_SQLCREATEPATH=create_mariadb \
+    -e TS3SERVER_DB_PLUGIN=ts3db_mariadb \
+    -e TS3SERVER_DB_HOST=mariadb10 \
+    -e TS3SERVER_DB_NAME=teamspeak \
+    -e TS3SERVER_DB_USER=teamspeak \
+    -e TS3SERVER_DB_PASSWORD='MYSQL_TEAMSPEAK_PASSWORD' \
+    -p 9987:9987/udp \
+    -p 10011:10011 \
+    -p 30033:30033 \
+    -v /volume1/docker/teamspeak/licensekey.dat:/var/ts3server/licensekey.dat \
+    teamspeak:3.12.1
+
+# connect teamspeak to teamspeak-net
+
+docker network connect teamspeak-net teamspeak
