@@ -1,0 +1,42 @@
+### sshd ###
+
+### Network ###
+
+docker network create ssh-net
+
+### sshd ###
+# https://hub.docker.com/r/portainer/portainer
+
+docker container run -d \
+    --name sshd \
+    --network ssh-net \
+    -e SSH_ENABLE_ROOT=true \
+    -e SSH_ENABLE_PASSWORD_AUTH=true \
+    -e SSH_USERS=admin:1024:100 \
+    -p 22:22 \
+    -v /volume1/docker/sshd/mnt:/mnt \
+    -v /volume1/docker/sshd/keys:/etc/ssh/keys \
+    -v /volume1/docker/sshd/authorized_keys:/root/.ssh/authorized_keys \
+    -v /volume1/docker/sshd/setpasswd.sh:/etc/entrypoint.d/setpasswd.sh \
+    panubo/sshd:1.2.0
+
+# setting password #
+# generate sha256 hash at https://trnubo.github.io/passwd.html
+# /etc/entrypoint.sh/setpasswd.sh
+#   _________________________
+#  | #!/usr/bin/env bash
+#  |
+#  | set -e
+#  |
+#  | echo 'admin:$6$lAkdPbeeZR7YJiE3$ohWgU3LcSVit/hEZ2VOVKvxD.67.N9h5v4ML7.4X51ZK3kABbTPHkZUPzN9jxQQWXtkLctI0FJZR8CChIwz.S/' | chpasswd --encrypted
+#  |
+#  | # Or if you don't pre-hash the password remove the line above and uncomment the line below.
+#  | # echo "user1:user1password" | chpasswd
+#  |
+
+# generate SSH keys #
+# for root: generate SSH-Keys on your client and copy the public-key into the /root/.ssh/authorized_keys file #
+ssh-keygen -t rsa
+cat ~/.ssh/id_rsa.pub
+
+# for users: generate SSH-Keys on your client and copy the public-key into the /etc/authorized_keys/<username> file #
