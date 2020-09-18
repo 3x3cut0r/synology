@@ -1,0 +1,17 @@
+### Firefox ###
+
+### Firefox ###
+# https://hub.docker.com/r/jlesage/firefox
+
+docker container run -d --restart=always \
+    --name=firefox \
+    -e TZ='Europe/Berlin' \
+    -e VNC_PASSWORD='P@ssw0rd' \
+    -e USER_ID='1024' \
+    -e GROUP_ID='100' \
+    -e KEEP_APP_RUNNING='1' \
+    -p 5808:5800 \
+    -p 5908:5900 \
+    -v /volume1/docker/firefox:/config:rw \
+    --shm-size 2g \
+    jlesage/firefox:v1.14.0
