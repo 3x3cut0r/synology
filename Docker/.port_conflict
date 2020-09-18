@@ -1,0 +1,7 @@
+# Port X wird bereits verwendet:
+rm /usr/local/etc/services.d/<file>.sc
+
+# Port 53 Konflikt mit Synology build-in DNS
+vi /etc/dhcpd/dhcpd-vendor.conf
+port 0
+# stoppe / starte den DHCP-Dienst über den DSM
