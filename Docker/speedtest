@@ -1,0 +1,16 @@
+### Speedtest ###
+
+### Speedtest WEB ###
+# https://hub.docker.com/r/adolfintel/speedtest
+
+docker container run -d --restart=always \
+    --name=speedtest \
+    -p 80:80 \
+    adolfintel/speedtest:latest
+
+### Speedtest CLI ###
+# https://hub.docker.com/r/tianon/speedtest
+
+docker container run -d \
+    --name=speedtest_cli \
+    tianon/speedtest:2.1.2
