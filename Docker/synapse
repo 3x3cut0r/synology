@@ -1,0 +1,42 @@
+### Synapse ###
+
+### Network ###
+
+docker network create synapse-net
+
+### Synapse ###
+# https://hub.docker.com/r/matrixdotorg/synapse
+#
+# Generate (only the first time!)
+
+docker run -it --rm \
+    --name=synapse \
+    --network synapse-net \
+    -v /volume1/docker/synapse:/data \
+    -e SYNAPSE_SERVER_NAME=matrix.example.com \
+    -e SYNAPSE_REPORT_STATS=yes \
+    -e UID=1024 \
+    -e GID=100 \
+    -p 8008:8008 \
+    -p 8448:8448 \
+    matrixdotorg/synapse:v1.19.3 generate
+
+# edit homeserver.yaml #
+
+### Synapse ###
+# https://hub.docker.com/r/matrixdotorg/synapse
+
+docker container run -d --restart=always \
+    --name=synapse \
+    --network synapse-net \
+    -v /volume1/docker/synapse:/data \
+    -e TZ='Europe/Berlin' \
+    -e UID=1024 \
+    -e GID=100 \
+    -p 8008:8008 \
+    -p 8448:8448 \
+    matrixdotorg/synapse:v1.19.3
+
+# connect synapse to postgres-net
+
+docker network connect postgres-net synapse
