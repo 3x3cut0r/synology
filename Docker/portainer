@@ -1,0 +1,12 @@
+### Portainer ###
+
+### Portainer ###
+# https://hub.docker.com/r/portainer/portainer
+
+docker container run -d \
+    --name=portainer \
+    --restart=always \
+    -p 9000:9000 \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /volume1/docker/portainer:/data \
+    portainer/portainer-ce:2.0.0-alpine
