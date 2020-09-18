@@ -1,0 +1,24 @@
+
+### redis ###
+
+### Network ###
+
+docker network create redis-net
+
+### redis ###
+# https://hub.docker.com/_/redis
+
+# with requirepass #
+docker container run -d --restart=always \
+    --name=redis \
+    --network redis-net \
+    redis:6.0.8-alpine \
+    redis-server --requirepass REDIS_PASSWORD
+
+# with custom config (expert only!!!) #
+docker container run -d --restart=always \
+    --name=redis \
+    --network redis-net \
+    -v /volume1/docker/redis/redis.conf:/usr/local/etc/redis/redis.conf \
+    redis:6.0.8-alpine \
+    redis-server /usr/local/etc/redis/redis.conf
