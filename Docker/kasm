@@ -1,0 +1,86 @@
+### Kasm ###
+
+### Network ###
+
+docker network create kasm-net
+
+### kasm-db-postgres ###
+# https://hub.docker.com/_/postgres?tab=description
+
+docker container run -d --restart=always \
+    --name=kasm-db-postgres \
+    --network kasm-net \
+    -e POSTGRES_PASSWORD='BR3(jw;Tdt7Usvf6B=nTTUMt+f2EUY' \
+    -e POSTGRES_USER=kasm \
+    -e POSTGRES_DB=kasm \
+    -p 5433:5432 \
+    -v /volume1/docker/kasm/conf/database/data.sql:/docker-entrypoint-initdb.d/data.sql \
+    -v /volume1/docker/kasm/conf/database/:/tmp/ \
+    -v /volume1/docker/kasm/kasm-db-postgres:/var/lib/postgresql/data \
+    postgres:9.5-alpine
+
+### kasm-redis ###
+# https://hub.docker.com/_/redis
+
+docker container run -d --restart=always \
+    --name=kasm-redis \
+    --network kasm-net \
+    -e REDIS_PASSWORD='REDIS_PASSWORD' \
+    -p 6379:6379 \
+    redis:5-alpine
+
+### kasm-api ###
+# https://hub.docker.com/r/kasmweb/api
+
+docker container run -d --restart=always \
+    --name=kasm-api \
+    --network kasm-net \
+    -p 8080 \
+    -v /volume1/docker/kasm:/opt/kasm/current \
+    kasmweb/api:1.6.0
+
+### kasm-manager ###
+# https://hub.docker.com/r/kasmweb/manager
+
+docker container run -d --restart=always \
+    --name=kasm-manager \
+    --network kasm-net \
+    -p 8181 \
+    -v /volume1/docker/kasm:/opt/kasm/current \
+    kasmweb/manager:1.6.0
+
+### kasm-agent ###
+# https://hub.docker.com/r/kasmweb/agent
+
+docker container run -d --restart=always \
+    --name=kasm-agent \
+    --network kasm-net \
+    -p 4444 \
+    -v /volume1/docker/kasm:/opt/kasm/current \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /volume1/\@appstore/Docker/usr/bin/docker:/usr/bin/docker \
+    -v /volume1/docker/kasm/conf/nginx:/etc/nginx/conf.d \
+    kasmweb/manager:1.6.0
+
+### kasm-share ###
+# https://hub.docker.com/r/kasmweb/share
+
+docker container run -d --restart=always \
+    --name=kasm-share \
+    --network kasm-net \
+    -p 8182 \
+    -v /volume1/docker/kasm:/opt/kasm/current \
+    kasmweb/share:1.6.0
+
+### kasm-proxy ###
+# https://hub.docker.com/_/nginx
+
+docker container run -d --restart=always \
+    --name=kasm-proxy \
+    --network kasm-net \
+    -p 8183:443 \
+    -v /volume1/docker/kasm/conf/nginx:/etc/nginx/conf.d:ro \
+    -v /usr/syno/etc/certificate/_archive/yBRJCY/privkey.pem:/etc/ssl/private/kasm_nginx.key \
+    -v /usr/syno/etc/certificate/_archive/yBRJCY/cert.pem:/etc/ssl/certs/kasm_nginx.crt \
+    -v /volume1/docker/kasm/www:/srv/www:ro \
+    nginx:alpine
