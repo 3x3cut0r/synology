@@ -1,0 +1,23 @@
+### phpMyAdmin ###
+
+### Network ###
+# requires mariadb10-net
+# see mariadb10
+
+### phpMyAdmin ###
+# https://hub.docker.com/r/phpmyadmin/phpmyadmin
+
+docker container run -d --restart=always \
+    --name=phpmyadmin \
+    --network mariadb10-net \
+    -e MYSQL_ROOT_PASSWORD='MYSQL_ROOT_PASSWORD' \
+    -e PMA_ARBITRARY=1 \
+    -e PMA_HOST=mariadb10 \
+    -p 8090:80 \
+    -v /volume1/docker/phpmyadmin/php.ini:/usr/local/etc/php/conf.d/php.ini \
+    phpmyadmin/phpmyadmin:5.0.2
+
+### /usr/local/etc/php/conf.d/php.ini ###
+upload_max_filesize = 64M
+post_max_size = 64M
+max_execution_time = 180
