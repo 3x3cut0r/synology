@@ -1,0 +1,12 @@
+### PyLoad ###
+
+### PyLoad ###
+# https://hub.docker.com/r/writl/pyload
+
+docker container run -d --restart=always \
+    --name=pyload \
+    -p 8000:8000 \
+    -v /volume1/docker/pyload:/opt/pyload/pyload-config:rw \
+    -v /volume1/downloads:/opt/pyload/Downloads:rw \
+    writl/pyload:0.4.20
+    
