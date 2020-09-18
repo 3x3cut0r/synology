@@ -1,0 +1,19 @@
+### pgAdmin ###
+
+### Network ###
+# requires postgres-net
+# see postgres
+
+### pgAdmin ###
+# https://hub.docker.com/r/dpage/pgadmin4
+
+docker container run -d --restart=always \
+    --name=pgadmin \
+    --network postgres-net \
+    -e PGADMIN_DEFAULT_EMAIL='admin@example.com' \
+    -e PGADMIN_DEFAULT_PASSWORD='PGADMIN_ADMIN_PASSWORD' \
+    -e 'PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION=True' \
+    -p 8092:80 \
+    -v /volume1/docker/pgadmin:/var/lib/pgadmin \
+    -v /volume1/docker/pgadmin/certs:/certs \
+    dpage/pgadmin4:4.25
