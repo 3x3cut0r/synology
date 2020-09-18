@@ -1,0 +1,33 @@
+### Maubot ###
+
+### Network ###
+# requires synapse-net
+# see synapse
+#
+# requires postgres-net
+# see postgres
+
+### Maubot ###
+# https://github.com/maubot/maubot/wiki/Setup-with-Docker
+
+# 1. initial configuration #
+docker run --rm \
+    --name=maubot \
+    --network postgres-net \
+    -v /volume1/docker/maubot:/data:z \
+    dock.mau.dev/maubot/maubot:latest
+
+# 2. config anpassen #
+# /data/config.yaml anpassen #
+
+# 3. run maubot #
+docker container run -d --restart=always \
+    --name=maubot \
+    --network postgres-net \
+    -p 29316:29316 \
+    -v /volume1/docker/maubot:/data:z \
+    dock.mau.dev/maubot/maubot:latest
+
+# connect maubot to synapse-net
+
+docker network connect synapse-net maubot
