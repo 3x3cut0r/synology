@@ -1,0 +1,20 @@
+### wekan ###
+
+### Network ###
+# requires mongo-net
+# see mongo
+
+### MongoDB ###
+# requires mongo
+# see mongo
+
+### wekan ###
+# https://hub.docker.com/r/wekanteam/wekan
+
+docker container run -d \
+    --name=wekan \
+    --network mongo-net \
+    -e MONGO_URL='mongodb://mongo:27017/wekan' \
+    -e ROOT_URL='https://wekan.example.com' \
+    -p 8080:8080 \
+    wekanteam/wekan:v3.97
