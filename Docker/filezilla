@@ -1,0 +1,14 @@
+### Filezilla ###
+
+### Filezilla ###
+# https://hub.docker.com/r/jlesage/filezilla
+
+docker container run -d \
+    --name=filezilla \
+    -e TZ='Europe/Berlin' \
+    -e VNC_PASSWORD='P@ssw0rd' \
+    -p 5807:5800 \
+    -p 5907:5900 \
+    -v /volume1/docker/filezilla/config:/config:rw \
+    -v /volume1/docker/filezilla/storage:/storage:rw \
+    jlesage/filezilla:v1.27.0
