@@ -1,0 +1,18 @@
+### Adminer ###
+
+### Network ###
+# requires mariadb10-net
+# see mariadb10
+
+### Adminer ###
+# https://hub.docker.com/_/adminer
+
+docker container run -d --restart=always \
+    --name=adminer \
+    --network mariadb10-net \
+    -p 8089:8080 \
+    adminer:4.7.7
+
+# connect adminer to postgres-net
+
+docker network connect postgres-net adminer
