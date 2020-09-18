@@ -1,0 +1,42 @@
+### Mautrix-Telegram ###
+
+### Network ###
+# requires synapse-net
+# see synapse
+#
+# requires postgres-net
+# see postgres
+
+### Mautrix-Telegram ###
+# https://github.com/tulir/mautrix-telegram/wiki/Bridge-setup-with-Docker
+
+# 1. initial configuration #
+docker run --rm \
+    --name=mautrix-telegram \
+    --network postgres-net \
+    -v /volume1/docker/mautrix-telegram:/data:z \
+    dock.mau.dev/tulir/mautrix-telegram:latest
+
+# 2. config anpassen #
+# /data/config.yaml anpassen #
+
+# 3. generate registration.yaml #
+docker run --rm \
+    --name=mautrix-telegram \
+    --network postgres-net \
+    -v /volume1/docker/mautrix-telegram:/data:z \
+    dock.mau.dev/tulir/mautrix-telegram:latest
+
+# 4. copy registration.yaml to synapse docker container /data/mautrix-telegram/registration.yaml #
+
+# 5. run mautrix-telegram bridge #
+docker container run -d --restart=always \
+    --name=mautrix-telegram \
+    --network postgres-net \
+    -p 29317:29317 \
+    -v /volume1/docker/mautrix-telegram:/data:z \
+    dock.mau.dev/tulir/mautrix-telegram:latest
+
+# connect mautrix-telegram to synapse-net
+
+docker network connect synapse-net mautrix-telegram
