@@ -1,0 +1,38 @@
+### Guacamole Enterprise ###
+
+### Network ###
+# requires mariadb10-net
+# see mariadb10
+
+docker network create guacamole-net
+
+### Guacd ###
+# https://hub.docker.com/r/glyptodon/guacd
+
+docker container run -d --restart=always \
+    --name=guacamole-guacd \
+    --network guacamole-net \
+    -p 4822:4822 \
+    guacamole/guacd:1.2.0
+
+### MariaDB 10 ###
+# requires mariadb10
+# see mariadb10
+
+### Guacamole ###
+# https://hub.docker.com/r/guacamole/guacamole
+
+docker container run -d --restart=always \
+    --name guacamole \
+    --network mariadb10-net \
+    -e GUACD_HOSTNAME=guacamole-guacd \
+    -e MYSQL_HOSTNAME=mariadb10 \
+    -e MYSQL_DATABASE='guacamole' \
+    -e MYSQL_USER='guacamole' \
+    -e MYSQL_PASSWORD='MYSQL_ROOT_PASSWORD' \
+    -p 8080:8080 \
+    guacamole/guacamole:1.2.0
+
+# connect guacamole to guacamole-net
+
+docker network connect guacamole-net guacamole
