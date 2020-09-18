@@ -1,0 +1,34 @@
+### mx-puppet-discord ###
+
+### Network ###
+# requires synapse-net
+# see synapse
+#
+# requires postgres-net
+# see postgres
+
+### mx-puppet-discord ###
+# https://hub.docker.com/r/transcaffeine/mx-puppet-discord
+    
+# 1. copy and prepare config.yaml from https://github.com/matrix-discord/mx-puppet-discord/blob/master/sample.config.yaml #
+
+# 2. generate discord-registration.yaml #
+docker run --rm \
+    --name=mx-puppet-discord \
+    --network postgres-net \
+    -v /volume1/docker/mx-puppet-discord:/data:z \
+    transcaffeine/mx-puppet-discord:latest
+    
+# 4. copy rdiscord-registration.yaml to synapse docker container /data/mx-puppet-discord/registration.yaml #
+
+# 5. run mx-puppet-discord bridge # 
+docker container run -d --restart=always \
+    --name=mx-puppet-discord \
+    --network postgres-net \
+    -p 8434:8434 \
+    -v /volume1/docker/mx-puppet-discord:/data:z \
+    transcaffeine/mx-puppet-discord:latest
+    
+# connect mx-puppet-discord to synapse-net
+
+docker network connect synapse-net mx-puppet-discord
