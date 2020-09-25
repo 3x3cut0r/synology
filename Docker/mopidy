@@ -1,0 +1,20 @@
+### Mopidy ###
+
+### Network ###
+
+docker network create modpidy-net
+
+### Mopidy ###
+# https://hub.docker.com/r/wernight/mopidy
+
+docker container run -d --restart=always \
+    --name=mopidy \
+    --network modpidy-net \
+    -v "/volume1/docker/mopidy/media:/var/lib/mopidy/media:ro" \
+    -v "/volume1/docker/mopidy/local:/var/lib/mopidy/local" \
+    -v "/volume1/docker/mopidy/playlists:/var/lib/mopidy/playlists" \
+    -v "/volume1/docker/mopidy/mopidy.conf:/config/mopidy.conf" \
+    -p 6600:6600 \
+    -p 6680:6680 \
+    -p 5555:5555/udp \
+    wernight/mopidy:latest
