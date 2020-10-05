@@ -14,4 +14,4 @@ docker container run -d --restart=always \
     -p 5908:5900 \
     -v /volume1/docker/firefox:/config:rw \
     --shm-size 2g \
-    jlesage/firefox:v1.14.0
+    jlesage/firefox:v1.15.0
