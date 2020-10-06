@@ -1,0 +1,15 @@
+### riot-web ###
+
+### Network ###
+# requires synapse-net
+# see synapse
+
+### pihole ###
+# https://hub.docker.com/r/pihole/pihole
+
+docker container run -d \
+    --name=riot-web \
+    --network synapse-net \
+    -p 8093:80 \
+    -v /volume1/docker/riot-web/config.json:/etc/riot-web/config.json:ro \
+    bubuntux/riot-web:v1.7.8
