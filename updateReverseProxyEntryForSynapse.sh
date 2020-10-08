@@ -30,7 +30,7 @@ fqdn="3x3cut0r.synology.me" # your Full Qualified Domain Name of your Synapse-Se
 subdomain="matrix" # your Subdomain (Hostname) e.g.: "matrix"
 ip="192.168.178.254" # ip of your synology diskstation
 rpEntries=(	# bridges that need to be updated e.g.: "federation"
-	"matrix" # for matrix in general
+    "matrix" # for matrix in general
     "client" # for clients and federation
     "server" # for federation
     "maubot" # for maubot
@@ -57,7 +57,7 @@ makeConfigBackup (){ # make a backup of the original config
 
 setLocation (){
     case "$1" in
-    	matrix)
+        matrix)
             echo "" >> $tmpFile
             echo -e "\tlocation /_matrix {" >> $tmpFile
             echo -e "\t\tproxy_pass http://$ip:8448;" >> $tmpFile
@@ -144,7 +144,7 @@ searchContPosition (){ # search position after reverse proxy entry
 
 updateReverseProxyEntry (){ # give unique!! name of reverse proxy entry as parameter, e.g.: "firefox"
     insline=$(searchInsertPosition) # search position of reverse proxy entry insert line
-	contline=$(searchContPosition) # search position after reverse proxy entry
+    contline=$(searchContPosition) # search position after reverse proxy entry
     head -n $insline $path > $tmpFile # print first part
 
     echo -e "\t\tclient_max_body_size $client_max_body_size" >> $tmpFile # add client_max_body_size
