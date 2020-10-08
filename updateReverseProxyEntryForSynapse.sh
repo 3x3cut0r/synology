@@ -28,7 +28,9 @@
 ### !!! Change to your own !!! ###
 fqdn="3x3cut0r.synology.me" # your Full Qualified Domain Name of your Synapse-Server e.g.: "diskstation.synology.me"
 subdomain="matrix" # your Subdomain (Hostname) e.g.: "matrix"
+ip="192.168.178.254" # ip of your synology diskstation
 rpEntries=(	# bridges that need to be updated e.g.: "federation"
+	"matrix" # for matrix in general
     "client" # for clients and federation
     "server" # for federation
     "maubot" # for maubot
@@ -55,6 +57,15 @@ makeConfigBackup (){ # make a backup of the original config
 
 setLocation (){
     case "$1" in
+    	matrix)
+            echo "" >> $tmpFile
+            echo -e "\tlocation /_matrix {" >> $tmpFile
+            echo -e "\t\tproxy_pass http://$ip:8448;" >> $tmpFile
+            echo -e "\t\tproxy_set_header X-Forwarded-For \$remote_addr;" >> $tmpFile
+            echo -e "\t\tclient_max_body_size $client_max_body_size;" >> $tmpFile
+            echo -e "\t}" >> $tmpFile
+            ;;
+
         client)
             echo "" >> $tmpFile
             echo -e "\tlocation /.well-known/matrix/client {" >> $tmpFile
@@ -76,7 +87,7 @@ setLocation (){
         maubot)
             echo "" >> $tmpFile
             echo -e "\tlocation /_matrix/maubot/v1/logs" >> $tmpFile
-            echo -e "\t\tproxy_pass http://localhost:29316;" >> $tmpFile
+            echo -e "\t\tproxy_pass http://$ip:29316;" >> $tmpFile
             echo -e "\t\tproxy_http_version 1.1;" >> $tmpFile
             echo -e "\t\tproxy_set_header Upgrade \$http_upgrade;" >> $tmpFile
             echo -e "\t\tproxy_set_header Connection \"Upgrade\";" >> $tmpFile
@@ -84,7 +95,7 @@ setLocation (){
             echo -e "\t}" >> $tmpFile
             echo "" >> $tmpFile
             echo -e "\tlocation /_matrix/maubot" >> $tmpFile
-            echo -e "\t\tproxy_pass http://localhost:29316;" >> $tmpFile
+            echo -e "\t\tproxy_pass http://$ip:29316;" >> $tmpFile
             echo -e "\t\tproxy_set_header X-Forwarded-For \$remote_addr;" >> $tmpFile
             echo -e "\t}" >> $tmpFile
             ;;
@@ -102,7 +113,7 @@ searchInsertPosition (){ # use function updateReverseProxyEntry() below	!
     line=$( expr $line + $tmpLine) # add lines
     tail -n +$line $path > $tmpFile # store entry in tmpFile
 
-    pattern="}"
+    pattern="proxy_pass https://$ip:8448;"
     tmpLine=$(grep -n "$pattern" "$tmpFile" | head -n 1 | cut -d : -f 1) # new line
     line=$(expr $line + $tmpLine) # add lines
     tail -n +$line $path > $tmpFile # store entry in tmpFile
@@ -111,12 +122,31 @@ searchInsertPosition (){ # use function updateReverseProxyEntry() below	!
     echo $line
 }
 
-updateReverseProxyEntry (){ # give unique!! name of reverse proxy entry as parameter, e.g.: "firefox"
-    insline=$(searchInsertPosition) # search position of reverse proxy entry
-    headLine=$(expr $insline - 3)
-    head -n $headLine $path > $tmpFile # print first part
+searchContPosition (){ # search position after reverse proxy entry
+    pattern="server_name $subdomain.$fqdn" # search pattern -> need to be unique
+    line=$(grep -n "$pattern" "$path" | cut -d : -f 1) # line of reverse proxy entry
+    tail -n +$line $path > $tmpFile # store entry in tmpFile
 
-    echo "" >> $tmpFile
+    pattern="location / {" # new pattern
+    tmpLine=$(grep -n "$pattern" "$tmpFile" | head -n 1 | cut -d : -f 1) # new line
+    line=$( expr $line + $tmpLine) # add lines
+    tail -n +$line $path > $tmpFile # store entry in tmpFile
+
+    pattern="error_page 403 404 500 502 503 504 @error_page;"
+    tmpLine=$(grep -n "$pattern" "$tmpFile" | head -n 1 | cut -d : -f 1) # new line
+    line=$(expr $line + $tmpLine) # add lines
+    tail -n +$line $path > $tmpFile # store entry in tmpFile
+
+    rm -rf $tmpFile # remove tmpFile
+    line=$( expr $line - 2) # add lines
+    echo $line
+}
+
+updateReverseProxyEntry (){ # give unique!! name of reverse proxy entry as parameter, e.g.: "firefox"
+    insline=$(searchInsertPosition) # search position of reverse proxy entry insert line
+	contline=$(searchContPosition) # search position after reverse proxy entry
+    head -n $insline $path > $tmpFile # print first part
+
     echo -e "\t\tclient_max_body_size $client_max_body_size" >> $tmpFile # add client_max_body_size
     echo "" >> $tmpFile
     echo -e "\t}" >> $tmpFile # print second part, need to be unique too !!!
@@ -125,7 +155,7 @@ updateReverseProxyEntry (){ # give unique!! name of reverse proxy entry as param
         setLocation "$entry" # update entry
     done
 
-    tail -n +$insline $path >> $tmpFile # print third part
+    tail -n +$contline $path >> $tmpFile # print third part
     cp $tmpFile $path # copy to original location
     rm -rf $tmpFile # remove tmpFile
     exist=$(grep -n "well-known/matrix/client" $path | wc -l)
