@@ -6,7 +6,7 @@ docker network create tvheadend-net
 
 ### TvHeadend ###
 # https://hub.docker.com/r/linuxserver/tvheadend
-  
+
 docker container run -d --restart always \
     --name tvheadend \
     --network tvheadend-net \
@@ -32,12 +32,12 @@ exit
 docker container restart tvheadend
 
 # channels.m3u playlist download - all channels #
-wget --user=tvh --password=G8ekU38QWY7jyknU http://3x3cut0r.synology.me:9981/playlist/channels.m3u?profile=pass
-wget --user=tvh --password=G8ekU38QWY7jyknU http://3x3cut0r.synology.me:9981/playlist/channels.m3u?profile=htsp
+wget --user=tvheadend --password=PASSWORD http://3x3cut0r.synology.me:9981/playlist/channels.m3u?profile=pass
+wget --user=tvheadend --password=PASSWORD http://3x3cut0r.synology.me:9981/playlist/channels.m3u?profile=htsp
 
 ### OScam ###
 # https://hub.docker.com/r/linuxserver/oscam
-  
+
 docker container run -d --restart always \
     --network tvheadend-net \
     --name oscam \
