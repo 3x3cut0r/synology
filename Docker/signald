@@ -1,0 +1,14 @@
+### Signald ###
+
+### Network ###
+# requires synapse-net
+# see synapse
+
+### Mautrix-Signal ###
+# https://github.com/tulir/mautrix-signal/wiki/Bridge-setup-with-Docker
+
+docker container run -d --restart=always \
+    --name=signald \
+    --network synapse-net \
+    -v /volume1/docker/signald:/signald:z \
+    dock.mau.dev/maunium/signald:latest
