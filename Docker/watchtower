@@ -5,6 +5,6 @@
 
 docker container run -d --restart=always \
     --name=watchtower \
+    -e TZ='Europe/Berlin' \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    -v /etc/timezone:/etc/timezone:ro \
     containrrr/watchtower:1.0.3
