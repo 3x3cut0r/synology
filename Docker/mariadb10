@@ -12,6 +12,6 @@ docker container run -d --restart=always \
     --network mariadb10-net \
     -v /volume1/docker/mariadb10/data:/var/lib/mysql \
     -e MYSQL_ROOT_PASSWORD='MYSQL_ROOT_PASSWORD' \
-    mariadb:10.5.4-focal \
+    mariadb:10.5.6-focal \
     --character-set-server=utf8mb4 \
     --collation-server=utf8mb4_unicode_ci
