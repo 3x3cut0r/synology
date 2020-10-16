@@ -16,4 +16,4 @@ docker container run -d --restart=always \
     -p 8092:80 \
     -v /volume1/docker/pgadmin:/var/lib/pgadmin \
     -v /volume1/docker/pgadmin/certs:/certs \
-    dpage/pgadmin4:4.25
+    dpage/pgadmin4:4.27

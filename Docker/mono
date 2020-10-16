@@ -1,0 +1,8 @@
+### Mono ###
+
+### Mopidy ###
+# https://hub.docker.com/_/mono
+
+docker container run -d --restart=always \
+    --name=mono \
+    mono:6.0.0.334
