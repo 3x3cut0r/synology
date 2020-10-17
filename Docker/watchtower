@@ -7,4 +7,7 @@ docker container run -d --restart=always \
     --name=watchtower \
     -e TZ='Europe/Berlin' \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    containrrr/watchtower:1.0.3
+    containrrr/watchtower:latest \
+    --cleanup \
+    --rolling-restart \
+    --schedule "0 0 4 * * *"
