@@ -45,7 +45,7 @@ docker container run -d --restart=always \
     -p 4081:443 \
     -v /volume1/docker/nextcloud-onlyoffice-documentserver/Data:/var/www/onlyoffice/Data \
     -v /volume1/docker/nextcloud-onlyoffice-documentserver/log:/var/log/onlyoffice \
-    onlyoffice/documentserver:5.6.4.20
+    onlyoffice/documentserver:latest
 
 ### /var/www/html/config/config.php ###
 ...
