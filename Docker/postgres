@@ -12,4 +12,4 @@ docker container run -d --restart=always \
     --network postgres-net \
     -v /volume1/docker/postgres:/var/lib/postgresql/data \
     -e POSTGRES_PASSWORD='POSTGRES_PASSWORD' \
-    postgres:12.4
+    postgres:13.0
