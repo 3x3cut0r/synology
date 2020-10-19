@@ -19,7 +19,7 @@ docker run -it --rm \
     -e GID=100 \
     -p 8008:8008 \
     -p 8448:8448 \
-    matrixdotorg/synapse:v1.20.0 generate
+    matrixdotorg/synapse:v1.21.1 generate
 
 # edit homeserver.yaml #
 
