@@ -17,5 +17,4 @@ docker container run -d --restart=always \
     -e REDIS_HOST=redis \
     -e MAX_FILE_SIZE=2147483648 \
     -p 1443:1443 \
-    mozilla/send:v3.0.22
-    
+    mozilla/send:latest
