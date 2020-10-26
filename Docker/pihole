@@ -22,4 +22,4 @@ docker container run -d \
     -p 67:67/udp \
     -v /volume1/docker/pihole/dnsmasq.d:/etc/dnsmasq.d \
     -v /volume1/docker/pihole/pihole:/etc/pihole \
-    pihole/pihole:v4.4-amd64
+    pihole/pihole:latest
