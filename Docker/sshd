@@ -18,7 +18,7 @@ docker container run -d \
     -v /volume1/docker/sshd/keys:/etc/ssh/keys \
     -v /volume1/docker/sshd/authorized_keys:/root/.ssh/authorized_keys \
     -v /volume1/docker/sshd/setpasswd.sh:/etc/entrypoint.d/setpasswd.sh \
-    panubo/sshd:1.2.0
+    panubo/sshd:latest
 
 # setting password #
 # generate sha256 hash at https://trnubo.github.io/passwd.html
