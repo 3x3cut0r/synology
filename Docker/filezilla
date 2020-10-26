@@ -11,4 +11,4 @@ docker container run -d \
     -p 5907:5900 \
     -v /volume1/docker/filezilla/config:/config:rw \
     -v /volume1/docker/filezilla/storage:/storage:rw \
-    jlesage/filezilla:v1.27.0
+    jlesage/filezilla:latest
