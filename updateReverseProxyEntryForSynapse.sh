@@ -30,7 +30,8 @@ fqdn="3x3cut0r.synology.me" # your Full Qualified Domain Name of your Synapse-Se
 subdomain="matrix" # your Subdomain (Hostname) e.g.: "matrix"
 ip="192.168.178.254" # ip of your synology diskstation
 rpEntries=(	# bridges that need to be updated e.g.: "federation"
-    "matrix" # for matrix in general
+#    "matrix" # for matrix in general
+    "synapse" # for synapse clients
     "client" # for clients and federation
     "server" # for federation
     "maubot" # for maubot
@@ -66,6 +67,15 @@ setLocation (){
             echo -e "\t}" >> $tmpFile
             ;;
 
+        synapse)
+            echo "" >> $tmpFile
+            echo -e "\tlocation /_synapse/client {" >> $tmpFile
+            echo -e "\t\tproxy_pass http://$ip:8448;" >> $tmpFile
+            echo -e "\t\tproxy_set_header X-Forwarded-For \$remote_addr;" >> $tmpFile
+            echo -e "\t\tclient_max_body_size $client_max_body_size;" >> $tmpFile
+            echo -e "\t}" >> $tmpFile
+            ;;
+
         client)
             echo "" >> $tmpFile
             echo -e "\tlocation /.well-known/matrix/client {" >> $tmpFile
@@ -86,7 +96,7 @@ setLocation (){
 
         maubot)
             echo "" >> $tmpFile
-            echo -e "\tlocation /_matrix/maubot/v1/logs" >> $tmpFile
+            echo -e "\tlocation /_matrix/maubot/v1/logs {" >> $tmpFile
             echo -e "\t\tproxy_pass http://$ip:29316;" >> $tmpFile
             echo -e "\t\tproxy_http_version 1.1;" >> $tmpFile
             echo -e "\t\tproxy_set_header Upgrade \$http_upgrade;" >> $tmpFile
@@ -94,7 +104,7 @@ setLocation (){
             echo -e "\t\tproxy_set_header X-Forwarded-For \$remote_addr;" >> $tmpFile
             echo -e "\t}" >> $tmpFile
             echo "" >> $tmpFile
-            echo -e "\tlocation /_matrix/maubot" >> $tmpFile
+            echo -e "\tlocation /_matrix/maubot {" >> $tmpFile
             echo -e "\t\tproxy_pass http://$ip:29316;" >> $tmpFile
             echo -e "\t\tproxy_set_header X-Forwarded-For \$remote_addr;" >> $tmpFile
             echo -e "\t}" >> $tmpFile
@@ -147,7 +157,7 @@ updateReverseProxyEntry (){ # give unique!! name of reverse proxy entry as param
     contline=$(searchContPosition) # search position after reverse proxy entry
     head -n $insline $path > $tmpFile # print first part
 
-    echo -e "\t\tclient_max_body_size $client_max_body_size" >> $tmpFile # add client_max_body_size
+    echo -e "\t\tclient_max_body_size $client_max_body_size;" >> $tmpFile # add client_max_body_size
     echo "" >> $tmpFile
     echo -e "\t}" >> $tmpFile # print second part, need to be unique too !!!
 

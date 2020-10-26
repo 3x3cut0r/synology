@@ -19,7 +19,7 @@ docker run -it --rm \
     -e GID=100 \
     -p 8008:8008 \
     -p 8448:8448 \
-    matrixdotorg/synapse:v1.20.0 generate
+    matrixdotorg/synapse:latest generate
 
 # edit homeserver.yaml #
 
@@ -35,8 +35,9 @@ docker container run -d --restart=always \
     -e GID=100 \
     -p 8008:8008 \
     -p 8448:8448 \
-    matrixdotorg/synapse:v1.20.1
+    matrixdotorg/synapse:latest
 
-# connect synapse to postgres-net
+# connect synapse to postgres-net, redis-net
 
 docker network connect postgres-net synapse
+docker network connect redis-net synapse
