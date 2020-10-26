@@ -15,7 +15,7 @@ docker container run -d --restart=always \
     -e PMA_HOST=mariadb10 \
     -p 8090:80 \
     -v /volume1/docker/phpmyadmin/php.ini:/usr/local/etc/php/conf.d/php.ini \
-    phpmyadmin/phpmyadmin:5.0.2
+    phpmyadmin/phpmyadmin:latest
 
 ### /usr/local/etc/php/conf.d/php.ini ###
 upload_max_filesize = 64M
