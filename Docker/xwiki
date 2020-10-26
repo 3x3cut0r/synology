@@ -19,7 +19,7 @@ docker container run -d --restart=always \
     -e DB_HOST=mariadb10 \
     -p 8086:8080 \
     -v /volume1/docker/xwiki:/usr/local/xwiki \
-    xwiki:12.6.2
+    xwiki:12.8.0
 
 # connect xwiki to xwiki-net
 
