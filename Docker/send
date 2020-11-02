@@ -4,10 +4,6 @@
 # requires redis-net
 # see redis
 
-### redis ###
-# requires redis
-# see redis
-
 ### Firefox Send ###
 # https://hub.docker.com/r/mozilla/send
 
@@ -16,5 +12,7 @@ docker container run -d --restart=always \
     --network redis-net \
     -e REDIS_HOST=redis \
     -e MAX_FILE_SIZE=2147483648 \
-    -p 1443:1443 \
-    mozilla/send:latest
+    -e NODE_ENV='production' \
+    -e BASE_URL='https://send.mydomain.com' \
+    -p 443:443 \
+    mozilla/send:v3.0.22
