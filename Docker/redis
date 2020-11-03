@@ -1,24 +1,31 @@
-
 ### redis ###
 
 ### Network ###
 
 docker network create redis-net
+docker network create redis-nopw-net
 
 ### redis ###
 # https://hub.docker.com/_/redis
+
+# without requirepass #
+docker container run -d --restart=always \
+    --name=redis-nopw \
+    --network redis-nopw-net \
+    redis:6.0.9-alpine
 
 # with requirepass #
 docker container run -d --restart=always \
     --name=redis \
     --network redis-net \
-    redis:6.0.8-alpine \
-    redis-server --requirepass REDIS_PASSWORD
+    redis:6.0.9-alpine \
+    redis-server \
+    --requirepass REDIS_PASSWORD
 
-# with custom config (expert only!!!) #
+# with custom config #
 docker container run -d --restart=always \
     --name=redis \
     --network redis-net \
     -v /volume1/docker/redis/redis.conf:/usr/local/etc/redis/redis.conf \
-    redis:6.0.8-alpine \
+    redis:6.0.9-alpine \
     redis-server /usr/local/etc/redis/redis.conf
