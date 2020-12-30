@@ -29,14 +29,14 @@
 fqdn="3x3cut0r.synology.me" # your Full Qualified Domain Name of your Synapse-Server e.g.: "diskstation.synology.me"
 subdomain="matrix" # your Subdomain (Hostname) e.g.: "matrix"
 ip="192.168.178.254" # ip of your synology diskstation
+port="8008" # port of your matrix/synapse installation
 rpEntries=(	# bridges that need to be updated e.g.: "federation"
-#    "matrix" # for matrix in general
-    "synapse" # for synapse clients
+    "matrix" # for matrix in general
     "client" # for clients and federation
     "server" # for federation
     "maubot" # for maubot
 )
-client_max_body_size="100M" # client_max_body_size
+client_max_body_size="64M" # client_max_body_size
 backupPath="/volume1/backup/nginx/" # backup path
 
 ### Don't change anything below !!! ###
@@ -60,18 +60,19 @@ setLocation (){
     case "$1" in
         matrix)
             echo "" >> $tmpFile
-            echo -e "\tlocation /_matrix {" >> $tmpFile
-            echo -e "\t\tproxy_pass http://$ip:8448;" >> $tmpFile
+            echo -e "\tlocation ~* ^(\/_matrix|\/_synapse\/client) {" >> $tmpFile
+            echo -e "\t\tproxy_pass http://$ip:$port;" >> $tmpFile
+            echo -e "\t\tproxy_connect_timeout 600;" >> $tmpFile
+            echo -e "\t\tproxy_read_timeout 600;" >> $tmpFile
+            echo -e "\t\tproxy_send_timeout 600;" >> $tmpFile
+            echo -e "\t\tproxy_intercept_errors off;" >> $tmpFile
+            echo -e "\t\tproxy_http_version 1.1;" >> $tmpFile
+            echo -e "\t\tproxy_set_header Upgrade \$http_upgrade;" >> $tmpFile
+            echo -e "\t\tproxy_set_header Connection \"Upgrade\";" >> $tmpFile
             echo -e "\t\tproxy_set_header X-Forwarded-For \$remote_addr;" >> $tmpFile
-            echo -e "\t\tclient_max_body_size $client_max_body_size;" >> $tmpFile
-            echo -e "\t}" >> $tmpFile
-            ;;
-
-        synapse)
-            echo "" >> $tmpFile
-            echo -e "\tlocation /_synapse/client {" >> $tmpFile
-            echo -e "\t\tproxy_pass http://$ip:8448;" >> $tmpFile
-            echo -e "\t\tproxy_set_header X-Forwarded-For \$remote_addr;" >> $tmpFile
+            echo -e "\t\tproxy_set_header Host \$http_host;" >> $tmpFile
+            echo -e "\t\tproxy_set_header X-Real-IP \$remote_addr;" >> $tmpFile
+            echo -e "\t\tproxy_set_header X-Forwarded-Proto \$scheme;" >> $tmpFile
             echo -e "\t\tclient_max_body_size $client_max_body_size;" >> $tmpFile
             echo -e "\t}" >> $tmpFile
             ;;
@@ -96,16 +97,11 @@ setLocation (){
 
         maubot)
             echo "" >> $tmpFile
-            echo -e "\tlocation /_matrix/maubot/v1/logs {" >> $tmpFile
+            echo -e "\tlocation /_matrix/maubot {" >> $tmpFile
             echo -e "\t\tproxy_pass http://$ip:29316;" >> $tmpFile
             echo -e "\t\tproxy_http_version 1.1;" >> $tmpFile
             echo -e "\t\tproxy_set_header Upgrade \$http_upgrade;" >> $tmpFile
             echo -e "\t\tproxy_set_header Connection \"Upgrade\";" >> $tmpFile
-            echo -e "\t\tproxy_set_header X-Forwarded-For \$remote_addr;" >> $tmpFile
-            echo -e "\t}" >> $tmpFile
-            echo "" >> $tmpFile
-            echo -e "\tlocation /_matrix/maubot {" >> $tmpFile
-            echo -e "\t\tproxy_pass http://$ip:29316;" >> $tmpFile
             echo -e "\t\tproxy_set_header X-Forwarded-For \$remote_addr;" >> $tmpFile
             echo -e "\t}" >> $tmpFile
             ;;
@@ -123,7 +119,7 @@ searchInsertPosition (){ # use function updateReverseProxyEntry() below	!
     line=$( expr $line + $tmpLine) # add lines
     tail -n +$line $path > $tmpFile # store entry in tmpFile
 
-    pattern="proxy_pass https://$ip:8448;"
+    pattern="proxy_pass http://$ip:$port;"
     tmpLine=$(grep -n "$pattern" "$tmpFile" | head -n 1 | cut -d : -f 1) # new line
     line=$(expr $line + $tmpLine) # add lines
     tail -n +$line $path > $tmpFile # store entry in tmpFile
