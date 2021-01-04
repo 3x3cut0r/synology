@@ -28,7 +28,7 @@ docker container run -d --restart=always \
     -v /volume1/docker/nextcloud/nextcloud:/var/www/html \
     -v /volume1/docker/nextcloud/data:/var/www/html/data \
     -v /volume1/docker/nextcloud/php/php.ini:/usr/local/etc/php/conf.d/php-filesize.ini \
-    nextcloud:20.0.0-apache
+    nextcloud:20.0.4-apache
 
 # connect nextcloud to nextcloud-net, redis-net
 
