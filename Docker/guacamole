@@ -13,7 +13,7 @@ docker container run -d --restart=always \
     --name=guacamole-guacd \
     --network guacamole-net \
     -p 4822:4822 \
-    guacamole/guacd:1.2.0
+    guacamole/guacd:1.3.0
 
 ### MariaDB 10 ###
 # requires mariadb10
@@ -31,7 +31,7 @@ docker container run -d --restart=always \
     -e MYSQL_USER='guacamole' \
     -e MYSQL_PASSWORD='MYSQL_ROOT_PASSWORD' \
     -p 8080:8080 \
-    guacamole/guacamole:1.2.0
+    guacamole/guacamole:1.3.0
 
 # connect guacamole to guacamole-net
 
