@@ -1,16 +1,22 @@
 ### JDownloader2 ###
 
+### Network ###
+# requires guacamole-net if you want to use vnc
+# see guacamole
+
 ### JDownloader2 ###
 # https://hub.docker.com/r/jlesage/jdownloader-2
 
 docker container run -d --restart=unless-stopped \
     --name=jdownloader2 \
-    -e UID=1024 \
-    -e GID=100 \
+    --network guacamole-net \
+    -e USER_ID=1024 \
+    -e GROUP_ID=100 \
     -e TZ='Europe/Berlin' \
     -e KEEP_APP_RUNNING=1 \
     -e DISPLAY_WIDTH=1280 \
     -e DISPLAY_HEIGHT=800 \
+    -e VNC_PASSWORD='vncpassword' \
     -p 5800:5800 \
     -p 5900:5900 \
     -p 3129:3129 \
