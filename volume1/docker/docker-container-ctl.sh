@@ -68,7 +68,8 @@ declare -a DOCKER_CONTAINERS_DATABASES=(
     "mongo"
     "mariadb10"
     "postgres"
-    # for every SLEEP ... sleep 5 seconds
+    # for every SLEEP, sleep 5 seconds (give databases some time)
+    "SLEEP"
     "SLEEP"
     "SLEEP"
 )
@@ -81,6 +82,7 @@ declare -a DOCKER_CONTAINERS_DAEMONS=(
 
 declare -a DOCKER_CONTAINERS_SKIP=(
     # docker containers which will be skipped
+    "portainer"
 )
 
 ### FUNCTIONS ###
