@@ -98,7 +98,7 @@ function start () {
         if [[ $? -ne 0 ]]; then
             printf '\e[1;31m%-6s\e[m\n' "$output"
         else
-            printf '\e[1;32m%-6s\e[m\n\n' "STARTED"
+            printf '\e[1;32m%-6s\e[m\n' "STARTED"
         fi
     fi
     declare -a DOCKER_CONTAINERS=(
@@ -175,12 +175,15 @@ function help () {
     printf "  --restart\tstop all docker containers,\n"
     printf "\t\trestart the docker-daemon,\n"
     printf "\t\tstart all docker containers\n\n"
-    printf "  --cleanup\tremove service-files, if docker-daemon stops\n\n"
+    printf "  --cleanup\tremove service-files, if docker-daemon stops\n"
+    printf "\t\t(rm -rf /usr/local/etc/services.d/docker_*)\n\n"
     printf "  --include-daemon\n\t\tif --stop, also stop the docker-daemon\n\n"
     printf "  --skip\tlist of docker containers to be skipped\n"
     printf "\t\t(if --restart, they will be skipped from starting)\n\n"
-    printf "EXAMPLE:\n"
-    printf "  ./docker-container-ctl.sh --stop --skip mariadb10,portainer\n\n"
+    printf "  --sleep, --wait\n\t\tsleep (n) seconds after docker-daemon was started\n\n"
+    printf "EXAMPLES:\n"
+    printf "  ./docker-container-ctl.sh --stop --include-daemon --cleanup\n"
+    printf "  ./docker-container-ctl.sh --start --sleep 60 --skip nextcloud,tvheadend\n\n"
 }
 
 ### ARGS ###
@@ -191,6 +194,7 @@ fi
 ACTION=""
 INCLUDE_DAEMON="0"
 CLEAN_UP="0"
+SLEEP="0"
 while (( "$#" )); do
     case "$1" in
     --help)
@@ -215,14 +219,29 @@ while (( "$#" )); do
             exit 1
         fi
         ;;
+    --wait|--sleep)
+        if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
+            if [[ "$2" -gt "0" ]]; then
+                if [[ "${SLEEP}" -gt "600" ]]; then
+                    SLEEP="600"
+                else
+                    SLEEP="$2"
+                fi
+            else
+                printf '\e[1;31m%-6s\e[m\n\n' "Error: $1 must be int() >= 0"
+            fi
+            shift 2
+        else
+            printf '\e[1;31m%-6s\e[m\n\n' "Error: argument for $1 is missing"
+            exit 1
+        fi
+        ;;
     --skip)
         if [ -n "$2" ] && [ ${2:0:1} != "-" ]; then
-            for string in $2; do
-                declare -a DOCKER_CONTAINERS_SKIP=(
-                    "${DOCKER_CONTAINERS_SKIP[@]}"
-                    "$( echo "$2" | sed 's/,/ /g' )"
-                )
-            done
+            declare -a DOCKER_CONTAINERS_SKIP=(
+                "${DOCKER_CONTAINERS_SKIP[@]}"
+                "$( echo "$2" | sed 's/,/ /g' )"
+            )
             shift 2
         else
             printf '\e[1;31m%-6s\e[m\n\n' "Error: argument for $1 is missing"
@@ -242,6 +261,9 @@ while (( "$#" )); do
 done
 
 ### START OF SCRIPT ###
-# execute "the string" of $ACTION (start|stop|restart)
+# execute sleep ${SLEEP}
+printf '\n\e[0;33m%-6s\e[m\n\n' "sleep ${SLEEP}"
+eval "sleep ${SLEEP}"
+# execute $ACTION (start|stop|restart)
 eval "${ACTION}"
 printf '\n\e[1;32m%-6s\e[m\n\n' "DONE"
