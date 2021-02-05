@@ -81,6 +81,14 @@ declare -a DOCKER_CONTAINERS_SKIP=(
 )
 
 ### FUNCTIONS ###
+function cleanup () {
+    # cleanup service-files (prevent port conflicts while starting containers)
+    if [[ ! $CLEAN_UP -eq "0" ]];then
+        printf '\n\e[0;33m%-6s\e[m\n' "rm -rf /usr/local/etc/services.d/docker_*"
+        rm -rf /usr/local/etc/services.d/docker_*
+    fi
+}
+
 function start () {
     # if docker-daemon is stopped, start
     DOCKER_DAEMON_STARTED="$( synoservice --status pkgctl-Docker | grep pkgctl-Docker | grep start )"
@@ -147,21 +155,14 @@ function stop () {
             printf '\e[1;31m%-6s\e[m\n' "$output"
         else
             printf '\e[1;32m%-6s\e[m\n\n' "STOPPED"
+            cleanup
         fi
-    fi
-}
-
-function cleanup () {
-    # cleanup service-files (prevent port conflicts while starting containers)
-    if [[ ! $CLEAN_UP -eq "0" ]];then
-        rm -rf /usr/local/etc/services.d/docker_*
     fi
 }
 
 function restart () {
     INCLUDE_DAEMON="1"
     stop
-    cleanup
     start
 }
 
