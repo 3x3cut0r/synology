@@ -104,14 +104,23 @@ function start () {
             printf '\e[1;32m%-6s\e[m\n' "STARTED"
         fi
     fi
+
+    # sleep
+    if [[ "${SLEEP}" -gt "0" ]]; then
+        printf '\n\e[0;33m%-6s\e[m\n' "sleep ${SLEEP}"
+        eval "sleep ${SLEEP}"
+    fi
+
+    # define starting order
     declare -a DOCKER_CONTAINERS=(
-        # define starting order
         "${DOCKER_CONTAINERS_DAEMONS[@]}"
         "${DOCKER_CONTAINERS_DATABASES[@]}"
         "${DOCKER_CONTAINERS_WITH_DEPS_2[@]}"
         "${DOCKER_CONTAINERS_WITH_DEPS_1[@]}"
         "${DOCKER_CONTAINERS_WITHOUT_DEPS[@]}"
     )
+
+    # start all docker containers
     printf '\n\e[0;33m%-6s\e[m\n\n' "start all docker containers: "
     for CONTAINER in ${DOCKER_CONTAINERS[@]}; do
         if [[ ! "${DOCKER_CONTAINERS_SKIP[@]}" =~ "${CONTAINER}" ]]; then
@@ -131,14 +140,16 @@ function start () {
 }
 
 function stop () {
+    # define stopping order
     declare -a DOCKER_CONTAINERS=(
-        # define stopping order
         "${DOCKER_CONTAINERS_WITHOUT_DEPS[@]}"
         "${DOCKER_CONTAINERS_WITH_DEPS_1[@]}"
         "${DOCKER_CONTAINERS_WITH_DEPS_2[@]}"
         "${DOCKER_CONTAINERS_DATABASES[@]}"
         "${DOCKER_CONTAINERS_DAEMONS[@]}"
     )
+
+    # stop all docker containers
     printf '\n\e[0;33m%-6s\e[m\n\n' "stop all docker containers: "
     for CONTAINER in ${DOCKER_CONTAINERS[@]}; do
         if [[ ! "${DOCKER_CONTAINERS_SKIP[@]}" =~ "${CONTAINER}" && ! "${CONTAINER}" = "SLEEP" ]]; then
@@ -151,6 +162,8 @@ function stop () {
             fi
         fi
     done
+
+    # stop docker-daemon if INCLUDE_DAEMON is set
     if [[ ! "${INCLUDE_DAEMON}" -eq "0" ]]; then
         printf '\n\e[0;33m%-6s\e[m' "stop docker-daemon: "
         output="$( synoservice --stop pkgctl-Docker )"
@@ -264,9 +277,6 @@ while (( "$#" )); do
 done
 
 ### START OF SCRIPT ###
-# execute sleep ${SLEEP}
-printf '\n\e[0;33m%-6s\e[m\n\n' "sleep ${SLEEP}"
-eval "sleep ${SLEEP}"
 # execute $ACTION (start|stop|restart)
 eval "${ACTION}"
 printf '\n\e[1;32m%-6s\e[m\n\n' "DONE"
