@@ -11,6 +11,9 @@
 #  2. chmod +x ./docker-container-ctl.sh
 #  3. ./docker-container-ctl.sh --help
 #
+# Examples:
+#  ./docker-container-ctl.sh --stop --include-daemon --cleanup
+#  ./docker-container-ctl.sh --start --sleep 60 --skip nextcloud,tvheadend
 
 ### DECLARATION ###
 declare -a DOCKER_CONTAINERS_WITHOUT_DEPS=(
