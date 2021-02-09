@@ -88,7 +88,7 @@ declare -a DOCKER_CONTAINERS_SKIP=(
 ### FUNCTIONS ###
 function cleanup () {
     # cleanup service-files (prevent port conflicts while starting containers)
-    if [[ ! $CLEAN_UP -eq "0" ]];then
+    if [[ ! $CLEAN_UP -eq "0" ]]; then
         printf '\n\e[0;33m%-6s\e[m\n' "rm -rf /usr/local/etc/services.d/docker_*"
         rm -rf /usr/local/etc/services.d/docker_*
     fi
