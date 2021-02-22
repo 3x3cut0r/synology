@@ -156,6 +156,8 @@ docker container run -d --restart=unless-stopped \
     --name=umbrel-dashboard \
     --network=umbrel-net \
     --ip=10.21.21.3 \
+    -e VUE_APP_MANAGER_API_URL="http://10.21.21.4:3006" \
+    -e VUE_APP_MIDDLEWARE_API_URL="http://10.21.21.5:3005" \
     -p 3004:3004 \
     getumbrel/dashboard:latest
 
@@ -202,8 +204,11 @@ docker container run -d --restart=unless-stopped \
     -e RPC_PASSWORD=$BITCOIN_RPC_PASS \
     -e LND_NETWORK=mainnet \
     -e LND_HOST="10.21.21.9" \
+    -e LND_PORT="10009" \
     -e JWT_PUBLIC_KEY_FILE="/jwt-public-key/jwt.pem" \
     -e DEVICE_HOSTS=$DEVICE_HOSTS \
+    -e TLS_FILE="/lnd/tls.cert" \
+    -e MACAROON_DIR="/lnd/data/chain/bitcoin/mainnet/" \
     -v $UMBREL_ROOT/lnd:/lnd \
     -v $UMBREL_ROOT/db/jwt-public-key:/jwt-public-key \
     getumbrel/middleware:latest
