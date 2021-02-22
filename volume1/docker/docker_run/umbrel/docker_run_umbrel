@@ -1,0 +1,240 @@
+### Umbrel ###
+# https://github.com/getumbrel/umbrel
+#
+
+### (1) create docker network ###
+#
+docker network create \
+    --driver=bridge \
+    --subnet=10.21.21.0/24 \
+    --gateway=10.21.21.1 \
+    umbrel-net
+
+
+### (2) Prepare Synology Volume ( ! as root ! )
+#
+# 1. prepare your umbrel root directory:
+#
+UMBREL_ROOT=/volume1/docker/umbrel
+DEVICE_HOSTS="https://umbrel.local"
+
+# 2. download umbrel
+#
+mkdir -p $UMBREL_ROOT
+cd $UMBREL_ROOT
+wget -p https://github.com/getumbrel/umbrel/archive/master.zip -O master.zip
+7z x master.zip -y
+mv -f umbrel-master/* .
+rm -rf master.zip umbrel-master
+mkdir -p $UMBREL_ROOT/db/jwt-public-key
+mkdir -p $UMBREL_ROOT/db/jwt-private-key
+
+# 3. download config-files:
+#
+wget -p https://raw.githubusercontent.com/3x3cut0r/synology/master/volume1/docker/docker_run/umbrel/tor/torrc -O $UMBREL_ROOT/tor/torrc
+wget -p https://raw.githubusercontent.com/3x3cut0r/synology/master/volume1/docker/docker_run/umbrel/bitcoin/bitcoin.conf -O $UMBREL_ROOT/bitcoin/bitcoin.conf
+wget -p https://raw.githubusercontent.com/3x3cut0r/synology/master/volume1/docker/docker_run/umbrel/lnd/lnd.conf -O $UMBREL_ROOT/lnd/lnd.conf
+wget -p https://raw.githubusercontent.com/3x3cut0r/synology/master/volume1/docker/docker_run/umbrel/nginx/nginx.conf -O $UMBREL_ROOT/nginx/nginx.conf
+wget -p https://raw.githubusercontent.com/3x3cut0r/synology/master/volume1/docker/docker_run/umbrel/electrs/electrs.toml -O $UMBREL_ROOT/electrs/electrs.toml
+wget -p https://raw.githubusercontent.com/3x3cut0r/synology/master/volume1/docker/docker_run/umbrel/.env -O $UMBREL_ROOT/.env
+
+# 4. prepare contig-files:
+#
+# tor:
+TOR_PASSWORD=$("./scripts/rpcauth.py" "itdoesntmatter" | tail -1)
+TOR_HASHED_PASSWORD=$(docker run --rm getumbrel/tor:latest --quiet --hash-password "$TOR_PASSWORD")
+sed -i s/#HashedControlPassword\ 16:872860B76453A77D60CA2BB8C1A7042072093276A3D701AD684053EC4C/HashedControlPassword\ $TOR_HASHED_PASSWORD/g $UMBREL_ROOT/tor/torrc
+#
+# bitcoin:
+BITCOIN_RPC_DETAILS=$(./scripts/rpcauth.py umbrel)
+BITCOIN_RPC_PASS=$(echo "$BITCOIN_RPC_DETAILS" | tail -1)
+BITCOIN_RPC_AUTH=$(echo "$BITCOIN_RPC_DETAILS" | head -2 | tail -1 | sed -e "s/^rpcauth=//")
+sed -i s/rpcauth=charlie:b3508846e1e7f8899ddbbd80dac4ded8$98dcf22145ea56a240f7dcef408ad2d82a2d839aa73ebabfee13f1d48be098ed/rpcauth=$BITCOIN_RPC_AUTH/g $UMBREL_ROOT/bitcoin/bitcoin.conf
+#
+# lnd:
+sed -i s/\;\ bitcoind.rpcpass=kek/bitcoind.rpcpass=$BITCOIN_RPC_PASS/g $UMBREL_ROOT/lnd/lnd.conf
+sed -i s/\;\ tor.password=plsdonthackme/tor.password=$TOR_PASSWORD/g $UMBREL_ROOT/lnd/lnd.conf
+#
+# .env:
+sed -i s/BITCOIN_RPC_PASS=\<password\>/BITCOIN_RPC_PASS=$BITCOIN_RPC_PASS/g $UMBREL_ROOT/.env
+sed -i s/BITCOIN_RPC_AUTH=\<rpcauth\>/BITCOIN_RPC_AUTH=$BITCOIN_RPC_AUTH/g $UMBREL_ROOT/.env
+sed -i s/TOR_HASHED_PASSWORD=\<password\>/TOR_HASHED_PASSWORD=$TOR_HASHED_PASSWORD/g $UMBREL_ROOT/.env
+sed -i s#DOCKER_BINARY=\<path\>#$(which docker)#g $UMBREL_ROOT/.env
+#
+# config done:
+touch "$UMBREL_ROOT/statuses/configured"
+touch "$UMBREL_ROOT/statuses/node-status-bitcoind-ready"
+
+# 5. change umbrel permissions:
+#
+chown -R 1000:1000 $UMBREL_ROOT
+
+
+### (3) start Docker Containers:
+#
+# 1. tor:
+docker container run -d --restart=unless-stopped \
+    --name=umbrel-tor \
+    --network=umbrel-net \
+    --ip=10.21.21.11 \
+    -v /volume2/docker2/umbrel/tor/torrc:/etc/tor/torrc \
+    -v /volume2/docker2/umbrel/tor/data:/var/lib/tor/ \
+    -v /volume2/docker2/umbrel/tor/run:/var/run/tor/ \
+    -p 9050:9050 \
+    lncm/tor:latest
+
+sleep 10
+
+# 2. manager: (depends_on: tor)
+docker container run -d --restart=unless-stopped \
+    --name=umbrel-manager \
+    --network=umbrel-net \
+    --ip=10.21.21.4 \
+    -e PORT="3006" \
+    -e USER_PASSWORD_FILE="/db/user.json" \
+    -e JWT_PUBLIC_KEY_FILE="/db/jwt-public-key/jwt.pem" \
+    -e JWT_PRIVATE_KEY_FILE="/db/jwt-private-key/jwt.key" \
+    -e JWT_EXPIRATION="3600" \
+    -e DOCKER_COMPOSE_DIRECTORY=$UMBREL_ROOT \
+    -e DEVICE_HOSTS=$DEVICE_HOSTS \
+    -e DEVICE_HOSTNAME="umbrel.3x3cut0r.synology.me" \
+    -e MIDDLEWARE_API_URL="http://10.21.21.5" \
+    -e MIDDLEWARE_API_PORT="3005" \
+    -e UMBREL_SEED_FILE="/db/umbrel-seed/seed" \
+    -e UMBREL_DASHBOARD_HIDDEN_SERVICE_FILE="/var/lib/tor/web/hostname" \
+    -e BITCOIN_P2P_HIDDEN_SERVICE_FILE="/var/lib/tor/bitcoin-p2p/hostname" \
+    -e BITCOIN_P2P_PORT=8333 \
+    -e BITCOIN_RPC_HIDDEN_SERVICE_FILE="/var/lib/tor/bitcoin-rpc/hostname" \
+    -e BITCOIN_RPC_PORT=8332 \
+    -e BITCOIN_RPC_USER=umbrel \
+    -e BITCOIN_RPC_PASSWORD=$BITCOIN_RPC_PASS \
+    -e LND_REST_HIDDEN_SERVICE_FILE="/var/lib/tor/lnd-rest/hostname" \
+    -e LND_GRPC_HIDDEN_SERVICE_FILE="/var/lib/tor/lnd-grpc/hostname" \
+    -e LND_CERT_FILE="/lnd/tls.cert" \
+    -e LND_ADMIN_MACAROON_FILE="/lnd/data/chain/bitcoin/mainnet/admin.macaroon" \
+    -e SHUTDOWN_SIGNAL_FILE="/signals/shutdown" \
+    -e REBOOT_SIGNAL_FILE="/signals/reboot" \
+    -e GITHUB_REPO="getumbrel/umbrel" \
+    -e UMBREL_VERSION_FILE="/info.json" \
+    -e UPDATE_STATUS_FILE="/statuses/update-status.json" \
+    -e UPDATE_SIGNAL_FILE="/signals/update" \
+    -e UPDATE_LOCK_FILE="/statuses/update-in-progress" \
+    -e BACKUP_STATUS_FILE="/statuses/backup-status.json" \
+    -e TOR_PROXY_IP="10.21.21.11" \
+    -e TOR_PROXY_PORT="9050" \
+    -e TOR_HIDDEN_SERVICE_DIR="/var/lib/tor" \
+    -e ELECTRUM_HIDDEN_SERVICE_FILE="/var/lib/tor/electrum/hostname" \
+    -e ELECTRUM_PORT="50011" \
+    -v $UMBREL_ROOT:$UMBREL_ROOT \
+    -v $UMBREL_ROOT/info.json:/info.json \
+    -v $UMBREL_ROOT/db:/db \
+    -v $UMBREL_ROOT/events/signals:/signals \
+    -v $UMBREL_ROOT/apps:/apps \
+    -v $UMBREL_ROOT/lnd:/lnd:ro \
+    -v $UMBREL_ROOT/statuses:/statuses \
+    -v $UMBREL_ROOT/tor/data:/var/lib/tor/ \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /usr/local/bin/docker:/usr/bin/docker \
+    -v $UMBREL_ROOT/db/jwt-public-key:/jwt-public-key \
+    -v $UMBREL_ROOT/db/jwt-private-key:/jwt-private-key \
+    getumbrel/manager:latest
+
+# 3. bitcoin: (depends_on: tor, manager)
+docker container run -d -it --restart=unless-stopped \
+    --name=umbrel-bitcoin \
+    --network=umbrel-net \
+    --ip=10.21.21.8 \
+    -v $UMBREL_ROOT/bitcoin:/data/.bitcoin \
+    -p 8332:8332 \
+    -p 8333:8333 \
+    -p 28332:28332 \
+    -p 28333:28333 \
+    lncm/bitcoind:v0.21.0
+
+# 4. dashboard:
+docker container run -d --restart=unless-stopped \
+    --name=umbrel-dashboard \
+    --network=umbrel-net \
+    --ip=10.21.21.3 \
+    -p 3004:3004 \
+    getumbrel/dashboard:latest
+
+# 5. frontail:
+docker container run -d --restart=unless-stopped \
+    --name=umbrel-frontail \
+    --network=umbrel-net \
+    --ip=10.21.21.7 \
+    -v /var/log/syslog.log:/var/log/syslog:ro \
+    getumbrel/frontail:latest \
+    /var/log/syslog \
+    --url-path /logs \
+    --number 100 \
+    --disable-usage-stats
+
+# 6. nginx: (depends_on: dashboard, manager)
+docker container run -d --restart=unless-stopped \
+    --name=umbrel-nginx \
+    --network=umbrel-net \
+    --ip 10.21.21.2 \
+    -v $UMBREL_ROOT/nginx/:/etc/nginx \
+    -p 8380:80 \
+    nginx:latest
+
+# 7. lnd: (depends_on: tor, manager)
+docker container run -d --restart=unless-stopped \
+    --name=umbrel-lnd \
+    --network=umbrel-net \
+    --ip=10.21.21.9 \
+    -v $UMBREL_ROOT/lnd:/data/.lnd \
+    -p 9735:9735 \
+    -p 10009:10009 \
+    lncm/lnd:v0.12.0
+
+# 8. middleware: (depends_on: manager, bitcoind, lnd)
+docker container run -d --restart=unless-stopped \
+    --name=umbrel-middleware \
+    --network=umbrel-net \
+    --ip=10.21.21.5 \
+    -e PORT="3005" \
+    -e BITCOIN_HOST=10.21.21.8 \
+    -e RPC_PORT=8332 \
+    -e RPC_USER=umbrel \
+    -e RPC_PASSWORD=$BITCOIN_RPC_PASS \
+    -e LND_NETWORK=mainnet \
+    -e LND_HOST="10.21.21.9" \
+    -e JWT_PUBLIC_KEY_FILE="/jwt-public-key/jwt.pem" \
+    -e DEVICE_HOSTS=$DEVICE_HOSTS \
+    -v $UMBREL_ROOT/lnd:/lnd \
+    -v $UMBREL_ROOT/db/jwt-public-key:/jwt-public-key \
+    getumbrel/middleware:latest
+
+# 9. electrs: (depends_on: bitcoin)
+docker container run -d --restart=unless-stopped \
+    --name=umbrel-electrs \
+    --network=umbrel-net \
+    --ip=10.21.21.10 \
+    -v $UMBREL_ROOT/bitcoin:/data/.bitcoin:ro \
+    -v $UMBREL_ROOT/electrs:/data \
+    -p 50011:50011 \
+    getumbrel/electrs:v0.8.6
+
+# 10. neutrino-switcher: (depends_on: bitcoin, lnd)
+docker container run -d --restart=on-failure \
+    --name=umbrel-neutrino-switcher \
+    --network=umbrel-net \
+    --ip=10.21.21.6 \
+    -e JSONRPCURL="http://10.21.21.8:8332" \
+    -e RPCUSER=umbrel \
+    -e RPCPASS=$BITCOIN_RPC_PASS \
+    -e LND_CONTAINER_NAME=umbrel-lnd \
+    -e BITCOIN_CONTAINER_NAME=umbrel-bitcoin \
+    -e SLEEPTIME=3600 \
+    -v $UMBREL_ROOT/lnd:/lnd \
+    -v $UMBREL_ROOT/bitcoin:/bitcoin\
+    -v $UMBREL_ROOT/statuses:/statuses \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    getumbrel/neutrino-switcher:latest \
+    ./wait-for-node-manager.sh \
+    umbrel-manager \
+    npm \
+    start
