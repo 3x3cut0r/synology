@@ -16,7 +16,7 @@ docker network create \
 # 1. prepare your umbrel root directory:
 #
 UMBREL_ROOT=/volume1/docker/umbrel
-DEVICE_HOSTS="https://umbrel.local"
+DEVICE_HOSTS="http://192.168.0.254,http://umbrel,https://umbrel,http://umbrel.local,https://umbrel.local"
 
 # 2. download umbrel
 #
@@ -84,6 +84,10 @@ docker container run -d --restart=unless-stopped \
     lncm/tor:latest
 
 sleep 10
+
+# add onion url to DEVICE_HOSTS:
+hidden_service_url=$(cat "${UMBREL_ROOT}/tor/data/web/hostname")
+DEVICE_HOSTS="${DEVICE_HOSTS},http://${hidden_service_url}"
 
 # 2. manager: (depends_on: tor)
 docker container run -d --restart=unless-stopped \
