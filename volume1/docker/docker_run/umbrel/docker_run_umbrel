@@ -158,7 +158,6 @@ docker container run -d --restart=unless-stopped \
     --ip=10.21.21.3 \
     -e VUE_APP_MANAGER_API_URL="http://10.21.21.4:3006" \
     -e VUE_APP_MIDDLEWARE_API_URL="http://10.21.21.5:3005" \
-    -p 3004:3004 \
     getumbrel/dashboard:latest
 
 # 5. frontail:
