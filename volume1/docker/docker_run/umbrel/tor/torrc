@@ -62,7 +62,6 @@ ControlPort 29051
 ## authentication methods, to prevent attackers from accessing it.
 #HashedControlPassword 16:872860B76453A77D60CA2BB8C1A7042072093276A3D701AD684053EC4C
 #CookieAuthentication 1
-HashedControlPassword 16:295B9A99A5837D12603C348795C5ABDFE96F6BE6D55593F2EBF25CBC8C
 
 ############### This section is just for location-hidden services ###
 
