@@ -11,10 +11,11 @@ docker network create \
     umbrel-net
 
 
-### (2) Prepare Synology Volume ( ! as root ! )
+### (2) Prepare Synology Volume ( ! as root ! ) ###
 #
-# 1. prepare your umbrel root directory:
-#
+# 1. prepare your UMBREL_ROOT directory and change your DEVICE_HOSTS
+#    (e.g.: http://<NAS-IP>,http://<NAS-Hostname>,http://<NAS-FQDN>,\
+#           https://<NAS-FQDN>, https://<NGINX-Reverse-Proxy-Name>, etc ...)
 UMBREL_ROOT=/volume1/docker/umbrel
 DEVICE_HOSTS="http://192.168.0.254,http://umbrel,https://umbrel,http://umbrel.local,https://umbrel.local"
 
@@ -70,7 +71,7 @@ touch "$UMBREL_ROOT/statuses/node-status-bitcoind-ready"
 chown -R 1000:1000 $UMBREL_ROOT
 
 
-### (3) start Docker Containers:
+### (3) start Docker Containers ###
 #
 # 1. tor:
 docker container run -d --restart=unless-stopped \
