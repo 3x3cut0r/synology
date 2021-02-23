@@ -1,0 +1,114 @@
+### Mailu ###
+
+### Network ###
+# require mariadb10-net
+# see mariadb10
+#
+# require redis-nopw-net
+# see redis
+
+docker network create \
+    --driver=bridge \
+    --subnet=172.21.96.0/20 \
+    --gateway=172.21.96.1 \
+    mailu-net
+
+### Mailu ###
+# https://hub.docker.com/r/mailu/postfix
+
+# front / nginx
+docker container run -d --restart=unless-stopped \
+    --name=mailu-nginx \
+    --network=mailu-net \
+    --log-driver=json-file \
+    --env-file /volume1/docker/mailu/mailu.env.txt \
+    -p 8094:80 \
+    -p 8095:443 \
+    -p 25:25 \
+    -p 465:465 \
+    -p 587:587 \
+    -p 110:110 \
+    -p 995:995 \
+    -p 143:143 \
+    -p 993:993 \
+    -v /volume1/docker/mailu/certs:/certs \
+    -v /volume1/docker/mailu/overrides/nginx:/overrides \
+    mailu/nginx:1.8
+
+# admin
+docker container run -d --restart=unless-stopped \
+    --name=mailu-admin \
+    --network=mariadb10-net \
+    --env-file /volume1/docker/mailu/mailu.env.txt \
+    -v /volume1/docker/mailu/data:/data \
+    -v /volume1/docker/mailu/dkim:/dkim \
+    mailu/admin:1.8
+
+docker network connect redis-nopw-net mailu-admin
+docker network connect mailu-net mailu-admin
+
+# imap / dovecot
+docker container run -d --restart=unless-stopped \
+    --name=mailu-dovecot \
+    --network=mailu-net \
+    --env-file /volume1/docker/mailu/mailu.env.txt \
+    -v /volume1/docker/mailu/mail:/mail \
+    -v /volume1/docker/mailu/overrides:/overrides \
+    mailu/dovecot:1.8
+
+# smtp / postfix
+docker container run -d --restart=unless-stopped \
+    --name=mailu-postfix \
+    --network=mailu-net \
+    --env-file /volume1/docker/mailu/mailu.env.txt \
+    -v /volume1/docker/mailu/overrides:/overrides \
+    mailu/postfix:1.8
+
+# antispam / rspamd
+docker container run -d --restart=unless-stopped \
+    --name=mailu-rspamd \
+    --network=redis-nopw-net \
+    --env-file /volume1/docker/mailu/mailu.env.txt \
+    -v /volume1/docker/mailu/filter:/var/lib/rspamd \
+    -v /volume1/docker/mailu/dkim:/dkim \
+    -v /volume1/docker/mailu/overrides/rspamd:/etc/rspamd/override.d \
+    mailu/rspamd:1.8
+
+docker network connect mailu-net mailu-rspamd
+
+### Webmail ###
+# webmail / roundcube
+docker container run -d --restart=unless-stopped \
+    --name=mailu-roundcube \
+    --network=mariadb10-net \
+    --env-file /volume1/docker/mailu/mailu.env.txt \
+    -v /volume1/docker/mailu/webmail:/data \
+    mailu/roundcube:1.8
+
+docker network connect mailu-net mailu-roundcube
+
+### Optional services ###
+# antivirus / clamav
+docker container run -d --restart=unless-stopped \
+    --name=mailu-clamav \
+    --network=mailu-net \
+    --env-file /volume1/docker/mailu/mailu.env.txt \
+    -v /volume1/docker/mailu/filter:/var/lib/rspamd \
+    mailu/clamav:1.8
+
+# webdav / radicale
+docker container run -d --restart=unless-stopped \
+    --name=mailu-radicale \
+    --network=redis-nopw-net \
+    --env-file /volume1/docker/mailu/mailu.env.txt \
+    -v /volume1/docker/mailu/dav:/data \
+    mailu/radicale:1.8
+
+docker network connect mailu-net mailu-radicale
+
+# fetchmail
+docker container run -d --restart=unless-stopped \
+    --name=mailu-fetchmail \
+    --network=mailu-net \
+    --env-file /volume1/docker/mailu/mailu.env.txt \
+    mailu/fetchmail:1.8
