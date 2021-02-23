@@ -22,8 +22,8 @@ docker container run -d --restart=unless-stopped \
     --network=mailu-net \
     --log-driver=json-file \
     --env-file /volume1/docker/mailu/mailu.env.txt \
-    -p 8094:80 \
-    -p 8095:443 \
+    -p 80:80 \
+    -p 443:443 \
     -p 25:25 \
     -p 465:465 \
     -p 587:587 \
