@@ -59,6 +59,7 @@ sed -i s/\;\ tor.password=plsdonthackme/tor.password=$TOR_PASSWORD/g $UMBREL_ROO
 # .env:
 sed -i s/BITCOIN_RPC_PASS=\<password\>/BITCOIN_RPC_PASS=$BITCOIN_RPC_PASS/g $UMBREL_ROOT/.env
 sed -i s/BITCOIN_RPC_AUTH=\<rpcauth\>/BITCOIN_RPC_AUTH=$BITCOIN_RPC_AUTH/g $UMBREL_ROOT/.env
+sed -i s/TOR_PASSWORD=\<password\>/TOR_PASSWORD=$TOR_PASSWORD/g $UMBREL_ROOT/.env
 sed -i s/TOR_HASHED_PASSWORD=\<password\>/TOR_HASHED_PASSWORD=$TOR_HASHED_PASSWORD/g $UMBREL_ROOT/.env
 sed -i s#DOCKER_BINARY=\<path\>#$(which docker)#g $UMBREL_ROOT/.env
 #
