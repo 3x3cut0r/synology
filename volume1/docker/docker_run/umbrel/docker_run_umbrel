@@ -74,11 +74,21 @@ chown -R 1000:1000 $UMBREL_ROOT
 
 ### (3) start Docker Containers ###
 #
-# 1. tor:
+# 1. syslog-ng:
+docker container run -d -it --restart=unless-stopped \
+    --name=umbrel-syslog-ng \
+    --network=umbrel-net \
+    --ip=10.21.21.214 \
+    -v $UMBREL_ROOT/logs:/var/log \
+    balabit/syslog-ng:latest
+
+# 2. tor:
 docker container run -d --restart=unless-stopped \
     --name=umbrel-tor \
     --network=umbrel-net \
     --ip=10.21.21.11 \
+    --log-driver=syslog \
+    --log-opt="syslog-address=udp://10.21.21.214:514" \
     -v /volume2/docker2/umbrel/tor/torrc:/etc/tor/torrc \
     -v /volume2/docker2/umbrel/tor/data:/var/lib/tor/ \
     -v /volume2/docker2/umbrel/tor/run:/var/run/tor/ \
@@ -91,11 +101,13 @@ sleep 10
 hidden_service_url=$(cat "${UMBREL_ROOT}/tor/data/web/hostname")
 DEVICE_HOSTS="${DEVICE_HOSTS},http://${hidden_service_url}"
 
-# 2. manager: (depends_on: tor)
+# 3. manager: (depends_on: tor)
 docker container run -d --restart=unless-stopped \
     --name=umbrel-manager \
     --network=umbrel-net \
     --ip=10.21.21.4 \
+    --log-driver=syslog \
+    --log-opt="syslog-address=udp://10.21.21.214:514" \
     -e PORT="3006" \
     -e USER_PASSWORD_FILE="/db/user.json" \
     -e JWT_PUBLIC_KEY_FILE="/db/jwt-public-key/jwt.pem" \
@@ -145,11 +157,14 @@ docker container run -d --restart=unless-stopped \
     -v $UMBREL_ROOT/db/jwt-private-key:/jwt-private-key \
     getumbrel/manager:latest
 
-# 3. bitcoin: (depends_on: tor, manager)
+# 4. bitcoin: (depends_on: tor, manager)
 docker container run -d -it --restart=unless-stopped \
     --name=umbrel-bitcoin \
     --network=umbrel-net \
     --ip=10.21.21.8 \
+    --hostname=umbrel-bitcoin \
+    --log-driver=syslog \
+    --log-opt="syslog-address=udp://10.21.21.214:514" \
     -v $UMBREL_ROOT/bitcoin:/data/.bitcoin \
     -p 8332:8332 \
     -p 8333:8333 \
@@ -157,51 +172,37 @@ docker container run -d -it --restart=unless-stopped \
     -p 28333:28333 \
     lncm/bitcoind:v0.21.0
 
-# 4. dashboard:
-docker container run -d --restart=unless-stopped \
-    --name=umbrel-dashboard \
-    --network=umbrel-net \
-    --ip=10.21.21.3 \
-    -e VUE_APP_MANAGER_API_URL="http://10.21.21.4:3006" \
-    -e VUE_APP_MIDDLEWARE_API_URL="http://10.21.21.5:3005" \
-    getumbrel/dashboard:latest
-
-# 5. frontail:
-docker container run -d --restart=unless-stopped \
-    --name=umbrel-frontail \
-    --network=umbrel-net \
-    --ip=10.21.21.7 \
-    -v /var/log/syslog.log:/var/log/syslog:ro \
-    getumbrel/frontail:latest \
-    /var/log/syslog \
-    --url-path /logs \
-    --number 100 \
-    --disable-usage-stats
-
-# 6. nginx: (depends_on: dashboard, manager)
-docker container run -d --restart=unless-stopped \
-    --name=umbrel-nginx \
-    --network=umbrel-net \
-    --ip 10.21.21.2 \
-    -v $UMBREL_ROOT/nginx/:/etc/nginx \
-    -p 8380:80 \
-    nginx:latest
-
-# 7. lnd: (depends_on: tor, manager)
+# 5. lnd: (depends_on: tor, manager)
 docker container run -d --restart=unless-stopped \
     --name=umbrel-lnd \
     --network=umbrel-net \
     --ip=10.21.21.9 \
+    --log-driver=syslog \
+    --log-opt="syslog-address=udp://10.21.21.214:514" \
     -v $UMBREL_ROOT/lnd:/data/.lnd \
     -p 9735:9735 \
     -p 10009:10009 \
     lncm/lnd:v0.12.0
 
-# 8. middleware: (depends_on: manager, bitcoind, lnd)
+# 6. electrs: (depends_on: bitcoin)
+docker container run -d --restart=unless-stopped \
+    --name=umbrel-electrs \
+    --network=umbrel-net \
+    --ip=10.21.21.10 \
+    --log-driver=syslog \
+    --log-opt="syslog-address=udp://10.21.21.214:514" \
+    -v $UMBREL_ROOT/bitcoin:/data/.bitcoin:ro \
+    -v $UMBREL_ROOT/electrs:/data \
+    -p 50011:50011 \
+    getumbrel/electrs:v0.8.6
+
+# 7. middleware: (depends_on: manager, bitcoind, lnd)
 docker container run -d --restart=unless-stopped \
     --name=umbrel-middleware \
     --network=umbrel-net \
     --ip=10.21.21.5 \
+    --log-driver=syslog \
+    --log-opt="syslog-address=udp://10.21.21.214:514" \
     -e PORT="3005" \
     -e BITCOIN_HOST=10.21.21.8 \
     -e RPC_PORT=8332 \
@@ -218,21 +219,49 @@ docker container run -d --restart=unless-stopped \
     -v $UMBREL_ROOT/db/jwt-public-key:/jwt-public-key \
     getumbrel/middleware:latest
 
-# 9. electrs: (depends_on: bitcoin)
+# 8. dashboard:
 docker container run -d --restart=unless-stopped \
-    --name=umbrel-electrs \
+    --name=umbrel-dashboard \
     --network=umbrel-net \
-    --ip=10.21.21.10 \
-    -v $UMBREL_ROOT/bitcoin:/data/.bitcoin:ro \
-    -v $UMBREL_ROOT/electrs:/data \
-    -p 50011:50011 \
-    getumbrel/electrs:v0.8.6
+    --ip=10.21.21.3 \
+    --log-driver=syslog \
+    --log-opt="syslog-address=udp://10.21.21.214:514" \
+    -e VUE_APP_MANAGER_API_URL="http://10.21.21.4:3006" \
+    -e VUE_APP_MIDDLEWARE_API_URL="http://10.21.21.5:3005" \
+    getumbrel/dashboard:latest
 
-# 10. neutrino-switcher: (depends_on: bitcoin, lnd)
-docker container run -d --restart=on-failure \
+# 9. nginx: (depends_on: dashboard, manager)
+docker container run -d --restart=unless-stopped \
+    --name=umbrel-nginx \
+    --network=umbrel-net \
+    --log-driver=syslog \
+    --log-opt="syslog-address=udp://10.21.21.214:514" \
+    --ip 10.21.21.2 \
+    -v $UMBREL_ROOT/nginx/:/etc/nginx \
+    -p 8380:80 \
+    nginx:latest
+
+# 10. frontail: (depends_on: syslog-ng)
+docker container run -d --restart=unless-stopped \
+    --name=umbrel-frontail \
+    --network=umbrel-net \
+    --ip=10.21.21.7 \
+    --log-driver=syslog \
+    --log-opt="syslog-address=udp://10.21.21.214:514" \
+    -v $UMBREL_ROOT/logs/messages:/var/log/syslog:ro \
+    getumbrel/frontail:latest \
+    /var/log/syslog \
+    --url-path /logs \
+    --number 100 \
+    --disable-usage-stats
+
+# 11. neutrino-switcher: (depends_on: bitcoin, lnd)
+docker container run -d --restart=no \
     --name=umbrel-neutrino-switcher \
     --network=umbrel-net \
     --ip=10.21.21.6 \
+    --log-driver=syslog \
+    --log-opt="syslog-address=udp://10.21.21.214:514" \
     -e JSONRPCURL="http://10.21.21.8:8332" \
     -e RPCUSER=umbrel \
     -e RPCPASS=$BITCOIN_RPC_PASS \
