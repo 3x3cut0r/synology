@@ -50,7 +50,7 @@ sed -i s/#HashedControlPassword\ 16:872860B76453A77D60CA2BB8C1A7042072093276A3D7
 BITCOIN_RPC_DETAILS=$(./scripts/rpcauth.py umbrel)
 BITCOIN_RPC_PASS=$(echo "$BITCOIN_RPC_DETAILS" | tail -1)
 BITCOIN_RPC_AUTH=$(echo "$BITCOIN_RPC_DETAILS" | head -2 | tail -1 | sed -e "s/^rpcauth=//")
-sed -i s/rpcauth=charlie:b3508846e1e7f8899ddbbd80dac4ded8$98dcf22145ea56a240f7dcef408ad2d82a2d839aa73ebabfee13f1d48be098ed/rpcauth=$BITCOIN_RPC_AUTH/g $UMBREL_ROOT/bitcoin/bitcoin.conf
+sed -i s/rpcauth=charlie\:b3508846e1e7f8899ddbbd80dac4ded8\$98dcf22145ea56a240f7dcef408ad2d82a2d839aa73ebabfee13f1d48be098ed/rpcauth=$BITCOIN_RPC_AUTH/g $UMBREL_ROOT/bitcoin/bitcoin.conf
 #
 # lnd:
 sed -i s/\;\ bitcoind.rpcpass=kek/bitcoind.rpcpass=$BITCOIN_RPC_PASS/g $UMBREL_ROOT/lnd/lnd.conf
