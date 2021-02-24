@@ -65,6 +65,8 @@ sed -i s/BITCOIN_RPC_AUTH=\<rpcauth\>/BITCOIN_RPC_AUTH=$BITCOIN_RPC_AUTH/g $UMBR
 sed -i s/TOR_PASSWORD=\<password\>/TOR_PASSWORD=$TOR_PASSWORD/g $UMBREL_ROOT/.env
 sed -i s/TOR_HASHED_PASSWORD=\<password\>/TOR_HASHED_PASSWORD=$TOR_HASHED_PASSWORD/g $UMBREL_ROOT/.env
 sed -i s#DOCKER_BINARY=\<path\>#$(which docker)#g $UMBREL_ROOT/.env
+sed -i s/DEVICE_IP=\<ip\>/DEVICE_IP=$DEVICE_IP/g $UMBREL_ROOT/.env
+sed -i s/DEVICE_HOSTNAME=\<hostname\>/DEVICE_HOSTNAME=$HOSTNAME/g $UMBREL_ROOT/.env
 #
 # config done:
 touch "$UMBREL_ROOT/statuses/configured"
@@ -103,6 +105,7 @@ sleep 10
 # add onion url to DEVICE_HOSTS:
 hidden_service_url=$(cat "${UMBREL_ROOT}/tor/data/web/hostname")
 DEVICE_HOSTS="${DEVICE_HOSTS},http://${hidden_service_url}"
+sed -i s#DEVICE_HOSTS=\<hosts\>#DEVICE_HOSTS=$DEVICE_HOSTS#g $UMBREL_ROOT/.env
 
 # 3. manager: (depends_on: syslog-ng, tor)
 docker container run -d --restart=unless-stopped \
@@ -128,7 +131,7 @@ docker container run -d --restart=unless-stopped \
     -e BITCOIN_RPC_HIDDEN_SERVICE_FILE="/var/lib/tor/bitcoin-rpc/hostname" \
     -e BITCOIN_RPC_PORT=8332 \
     -e BITCOIN_RPC_USER=umbrel \
-    -e BITCOIN_RPC_PASSWORD=$BITCOIN_RPC_PASS \
+    -e BITCOIN_RPC_PASSWORD=$(cat $UMBREL_ROOT/.env | grep BITCOIN_RPC_PASS | cut -d= -f2-) \
     -e LND_REST_HIDDEN_SERVICE_FILE="/var/lib/tor/lnd-rest/hostname" \
     -e LND_GRPC_HIDDEN_SERVICE_FILE="/var/lib/tor/lnd-grpc/hostname" \
     -e LND_CERT_FILE="/lnd/tls.cert" \
@@ -210,7 +213,7 @@ docker container run -d --restart=unless-stopped \
     -e BITCOIN_HOST=10.21.21.8 \
     -e RPC_PORT=8332 \
     -e RPC_USER=umbrel \
-    -e RPC_PASSWORD=$BITCOIN_RPC_PASS \
+    -e RPC_PASSWORD=$(cat $UMBREL_ROOT/.env | grep BITCOIN_RPC_PASS | cut -d= -f2-) \
     -e LND_NETWORK=mainnet \
     -e LND_HOST="10.21.21.9" \
     -e LND_PORT="10009" \
@@ -267,7 +270,7 @@ docker container run -d --restart=no \
     --log-opt="syslog-address=udp://10.21.21.214:514" \
     -e JSONRPCURL="http://10.21.21.8:8332" \
     -e RPCUSER=umbrel \
-    -e RPCPASS=$BITCOIN_RPC_PASS \
+    -e RPCPASS=$(cat $UMBREL_ROOT/.env | grep BITCOIN_RPC_PASS | cut -d= -f2) \
     -e LND_CONTAINER_NAME=umbrel-lnd \
     -e BITCOIN_CONTAINER_NAME=umbrel-bitcoin \
     -e SLEEPTIME=3600 \
