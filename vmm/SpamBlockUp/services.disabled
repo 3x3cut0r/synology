@@ -1,145 +1,145 @@
-| Service (german)                                                 | Service (english) | Service (shortname) | Enabled? | Description | Comment |
-|------------------------------------------------------------------|-------------------|---------------------|----------|-------------|---------|
-| ActiveX-Installer                                                |                   |                     | no       |             |         |
-| Adaptive Helligkeit                                              |                   |                     | no       |             |         |
-| Anmeldedienst                                                    |                   |                     | yes      |             |         |
-| Anmeldeinformationsverwaltung                                    |                   |                     | no       |             |         |
-| Anschlussumleitung für Remotedektopdienst im Benutzermodus       |                   |                     | yes      |             |         |
-| Anwendungserfahrung                                              |                   |                     | no       |             |         |
-| Anwendungsidentität                                              |                   |                     | no       |             |         |
-| Anwendungsverwaltung                                             |                   |                     | no       |             |         |
-| Arbeitsstationsdienst                                            |                   |                     | no       |             |         |
-| Aufgabenplanung                                                  |                   |                     | yes      |             |         |
-| Automatische Konfiguration (verkabelt)                           |                   |                     | yes      |             |         |
-| Automatische WLAN-Konfiguration                                  |                   |                     | no       |             |         |
-| Basisfiltermodul                                                 |                   |                     | yes      |             |         |
-| Benachrichtigungsdienst für Systemereignisse                     |                   |                     | no       |             |         |
-| BitLocker-Laufwerksverschlüsselung                               |                   |                     | no       |             |         |
-| Blockebenen-Sicherungsmodul                                      |                   |                     | no       |             |         |
-| BranchCache                                                      |                   |                     | no       |             |         |
-| CNG-Schlüsselisolation                                           |                   |                     | yes      |             |         |
-| COM+-Ereignissystem                                              |                   |                     | yes      |             |         |
-| COM+-Systemanwendung                                             |                   |                     | yes      |             |         |
-| Computerbrowser                                                  |                   |                     | yes      |             |         |
-| Defragmentierung                                                 |                   |                     | no       |             |         |
-| Designs                                                          |                   |                     | no       |             |         |
-| DHCP-Client                                                      |                   |                     | yes      |             |         |
-| Diagnosediensthost                                               |                   |                     | no       |             |         |
-| Diagnoserichtliniendienst                                        |                   |                     | no       |             |         |
-| Diagnosesystemhost                                               |                   |                     | no       |             |         |
-| Diagnostics Tracking Service                                     |                   |                     | no       |             |         |
-| Distributed Transaction Coordinator                              |                   |                     | no       |             |         |
-| DNS-Client                                                       |                   |                     | yes      |             |         |
-| Druckwarteschlange                                               |                   |                     | no       |             |         |
-| Enumeratordienst für tragbare Geräte                             |                   |                     | no       |             |         |
-| Ereignisse zum Abrufen von Standbildern                          |                   |                     | no       |             |         |
-| Erkennung interaktiver Dienste                                   |                   |                     | no       |             |         |
-| Extensible Authentication-Protokoll                              |                   |                     | no       |             |         |
-| Fax                                                              |                   |                     | no       |             |         |
-| Funktionssuchanbieter-Host                                       |                   |                     | no       |             |         |
-| Funktionssuche-Ressourcenveröffentlichung                        |                   |                     | no       |             |         |
-| Gatewaydienst auf Anwendungsebene                                |                   |                     | no       |             |         |
-| Geschützter Speicher                                             |                   |                     | yes      |             |         |
-| Gruppenrichtlinienclient                                         |                   |                     | yes      |             |         |
-| Heimnetzgruppen-Anbieter                                         |                   |                     | no       |             |         |
-| Heimnetzgruppen-Listener                                         |                   |                     | no       |             |         |
-| IKE- und AuthIP IPsec-Schlüsselerstellungsmodule                 |                   |                     | yes      |             |         |
-| Integritätsschlüssel- und Zertifikatverwaltung                   |                   |                     | yes      |             |         |
-| Intelligenter Hintergrundüberwachungsdienst                      |                   |                     | no       |             |         |
-| Internet Explorer ETW Collector Service                          |                   |                     | no       |             |         |
-| IP-Hilfsdienst                                                   |                   |                     | yes      |             |         |
-| IPsec-Richtlinien-Agent                                          |                   |                     | yes      |             |         |
-| Konfiguration für Remotedesktops                                 |                   |                     | no       |             |         |
-| Kryptografiedienste                                              |                   |                     | yes      |             |         |
-| KtmRm für Distributed Transaction Coordinator                    |                   |                     | yes      |             |         |
-| Leistungsprotokolle und -warnungen                               |                   |                     | no       |             |         |
-| Microsoft .NET Frankwork NGEN v4.0.30319_X86                     |                   |                     | no       |             |         |
-| Microsoft Antimalware Service                                    |                   |                     | yes      |             |         |
-| Microsoft Edge Elevation Service (MicrosoftEdgeElevationService) |                   |                     | no       |             |         |
-| Microsoft iSCSI-Initiator-Dienst                                 |                   |                     | no       |             |         |
-| Microsoft-Netzwerkinspektion                                     |                   |                     | yes      |             |         |
-| Microsoft-Softwareschattenkopie-Anbieter                         |                   |                     | no       |             |         |
-| Multimediaklassenplaner                                          |                   |                     | no       |             |         |
-| NAP-Agent (Network Access Protection)                            |                   |                     | yes      |             |         |
-| Netzwerklistendienst                                             |                   |                     | yes      |             |         |
-| Netzwerkspeicher-Schnittstellendienst                            |                   |                     | yes      |             |         |
-| Netzwerkverbindungen                                             |                   |                     | yes      |             |         |
-| NLA (Network Location Awareness)                                 |                   |                     | yes      |             |         |
-| Offlinedateien                                                   |                   |                     | no       |             |         |
-| Parental Controls                                                |                   |                     | no       |             |         |
-| Peer Name Resolution-Protokoll                                   |                   |                     | no       |             |         |
-| Peernetzwerk-Gruppenzuordnung                                    |                   |                     | no       |             |         |
-| Peernetzwerkidentitäts-Manager                                   |                   |                     | no       |             |         |
-| PnP-X-IP-Busenumerator                                           |                   |                     | no       |             |         |
-| PNRP-Computernamenveröffentlichungs-Dienst                       |                   |                     | no       |             |         |
-| Programmkompatibilitäts-Assistent-Dienst                         |                   |                     | no       |             |         |
-| QEMU Guest Agent                                                 |                   |                     | yes      |             |         |
-| QEMU Guest Agent VSS Provider                                    |                   |                     | yes      |             |         |
-| RAS-Verbindungsverwaltung                                        |                   |                     | no       |             |         |
-| Remodedesktopdienste                                             |                   |                     | yes      |             |         |
-| Remoteregistrierung                                              |                   |                     | no       |             |         |
-| Richtlinie zum Entfernen der Smartcard                           |                   |                     | no       |             |         |
-| RPC-Endpunktzuordnung                                            |                   |                     | yes      |             |         |
-| RPC-Locator                                                      |                   |                     | yes      |             |         |
-| Sekundäre Anmeldung                                              |                   |                     | no       |             |         |
-| Server                                                           |                   |                     | no       |             |         |
-| Server für Threadsortierung                                      |                   |                     | no       |             |         |
-| Shellhardwareerkennung                                           |                   |                     | no       |             |         |
-| Sicherheitscenter                                                |                   |                     | yes      |             |         |
-| Sicherheitskonto-Manager                                         |                   |                     | yes      |             |         |
-| Sitzungs-Manager für Desktopfenster-Manager                      |                   |                     | yes      |             |         |
-| Smartcard                                                        |                   |                     | no       |             |         |
-| SNMP-Trap                                                        |                   |                     | no       |             |         |
-| Speicherdienst                                                   |                   |                     | yes      |             |         |
-| SPP-Benachrichtigungsdienst                                      |                   |                     | no       |             |         |
-| SSDP-Suche                                                       |                   |                     | no       |             |         |
-| SSTP-Dienst                                                      |                   |                     | yes      |             |         |
-| Stromversorgung                                                  |                   |                     | no       |             |         |
-| Superfetch                                                       |                   |                     | yes      |             |         |
-| Tablet PC-Eingabedienst                                          |                   |                     | no       |             |         |
-| TCP/IP-NetBIOS-Hilfsdienst                                       |                   |                     | yes      |             |         |
-| Telefonie                                                        |                   |                     | yes      |             |         |
-| Unterstützung in der Systemsteuerung unter Lösungen für Probleme |                   |                     | no       |             |         |
-| UPnP-Gerätehost                                                  |                   |                     | no       |             |         |
-| Verbessertes Windows-Audio/Video-Streaming                       |                   |                     | no       |             |         |
-| Verbindungsschicht-Topologieerkennungs-Zuordnungsprogramm        |                   |                     | yes      |             |         |
-| Verschlüsseltes Dateisystem (EFS)                                |                   |                     | no       |             |         |
-| Verwaltung für automatische RAS-Verbindung                       |                   |                     | no       |             |         |
-| Virtueller Datenträger                                           |                   |                     | no       |             |         |
-| VMware SVGA Helper Service                                       |                   |                     | yes      |             |         |
-| Volumeschattenkopie                                              |                   |                     | no       |             |         |
-| WebClient                                                        |                   |                     | yes      |             |         |
-| Windows CardSpace                                                |                   |                     | no       |             |         |
-| Windows Defender                                                 |                   |                     | yes      |             |         |
-| Windows Driver Foundation - Benutzer-Treiberframework            |                   |                     | yes      |             |         |
-| Windows Installer                                                |                   |                     | yes      |             |         |
-| Windows Media Center-Empfängerdienst                             |                   |                     | no       |             |         |
-| Windows Media Center-Planerdienst                                |                   |                     | no       |             |         |
-| Windows Media Player-Netzwerkfreigabedienst                      |                   |                     | no       |             |         |
-| Windows Modules Installer                                        |                   |                     | no       |             |         |
-| Windows Presentation Foundation-Schriftartcache 3.0.0.0          |                   |                     | yes      |             |         |
-| Windows Search                                                   |                   |                     | no       |             |         |
-| Windows Update                                                   |                   |                     | no       |             |         |
-| Windows-Audio                                                    |                   |                     | no       |             |         |
-| Windows-Audio-Endpunkterstellung                                 |                   |                     | no       |             |         |
-| Windows-Bilderfassung (WIA)                                      |                   |                     | no       |             |         |
-| Windows-Biometriedienst                                          |                   |                     | no       |             |         |
-| Windows-Dienst für Schriftencache                                |                   |                     | no       |             |         |
-| Windows-Ereignisprotokoll                                        |                   |                     | no       |             |         |
-| Windows-Ereignissammlung                                         |                   |                     | no       |             |         |
-| Windows-Farbsystem                                               |                   |                     | no       |             |         |
-| Windows-Fehlerberichterstattungsdienst                           |                   |                     | no       |             |         |
-| Windows-Firewall                                                 |                   |                     | yes      |             |         |
-| Windows-Remoteverwaltung (WS-Verwaltung)                         |                   |                     | yes      |             |         |
-| Windows-Sicherung                                                |                   |                     | no       |             |         |
-| Windows-Sofortverbindung - Konfigurationsregistrierungsstelle    |                   |                     | no       |             |         |
-| Windows-Verwaltungsinstrumentation                               |                   |                     | yes      |             |         |
-| Windows-Zeitgeber                                                |                   |                     | yes      |             |         |
-| WinHTTP-Web Proxy Auto-Discovery-Dienst                          |                   |                     | no       |             |         |
-| WMI-Leistungsadapter                                             |                   |                     | no       |             |         |
-| WWAN - automatische Konfiguration                                |                   |                     | no       |             |         |
-| Zertifikatsverteilung                                            |                   |                     | no       |             |         |
-| Zugriff auf Eingabegeräte                                        |                   |                     | no       |             |         |
-| Überwachung verteilter Verknüpfungen (Client)                    |                   |                     | no       |             |         |
-| Microsoft Edge-Update-Dienst (edgeupdate)                        |                   |                     | no       |             |         |
-| Microsoft Edge-Update-Dienst (edgeupdatem)                       |                   |                     | no       |             |         |
+| Service (german)                                                 | Enabled? |
+|------------------------------------------------------------------|----------|
+| ActiveX-Installer                                                | no       |
+| Adaptive Helligkeit                                              | no       |
+| Anmeldedienst                                                    | yes      |
+| Anmeldeinformationsverwaltung                                    | no       |
+| Anschlussumleitung für Remotedektopdienst im Benutzermodus       | yes      |
+| Anwendungserfahrung                                              | no       |
+| Anwendungsidentität                                              | no       |
+| Anwendungsverwaltung                                             | no       |
+| Arbeitsstationsdienst                                            | no       |
+| Aufgabenplanung                                                  | yes      |
+| Automatische Konfiguration (verkabelt)                           | yes      |
+| Automatische WLAN-Konfiguration                                  | no       |
+| Basisfiltermodul                                                 | yes      |
+| Benachrichtigungsdienst für Systemereignisse                     | no       |
+| BitLocker-Laufwerksverschlüsselung                               | no       |
+| Blockebenen-Sicherungsmodul                                      | no       |
+| BranchCache                                                      | no       |
+| CNG-Schlüsselisolation                                           | yes      |
+| COM+-Ereignissystem                                              | yes      |
+| COM+-Systemanwendung                                             | yes      |
+| Computerbrowser                                                  | yes      |
+| Defragmentierung                                                 | no       |
+| Designs                                                          | no       |
+| DHCP-Client                                                      | yes      |
+| Diagnosediensthost                                               | no       |
+| Diagnoserichtliniendienst                                        | no       |
+| Diagnosesystemhost                                               | no       |
+| Diagnostics Tracking Service                                     | no       |
+| Distributed Transaction Coordinator                              | no       |
+| DNS-Client                                                       | yes      |
+| Druckwarteschlange                                               | no       |
+| Enumeratordienst für tragbare Geräte                             | no       |
+| Ereignisse zum Abrufen von Standbildern                          | no       |
+| Erkennung interaktiver Dienste                                   | no       |
+| Extensible Authentication-Protokoll                              | no       |
+| Fax                                                              | no       |
+| Funktionssuchanbieter-Host                                       | no       |
+| Funktionssuche-Ressourcenveröffentlichung                        | no       |
+| Gatewaydienst auf Anwendungsebene                                | no       |
+| Geschützter Speicher                                             | yes      |
+| Gruppenrichtlinienclient                                         | yes      |
+| Heimnetzgruppen-Anbieter                                         | no       |
+| Heimnetzgruppen-Listener                                         | no       |
+| IKE- und AuthIP IPsec-Schlüsselerstellungsmodule                 | yes      |
+| Integritätsschlüssel- und Zertifikatverwaltung                   | yes      |
+| Intelligenter Hintergrundüberwachungsdienst                      | no       |
+| Internet Explorer ETW Collector Service                          | no       |
+| IP-Hilfsdienst                                                   | yes      |
+| IPsec-Richtlinien-Agent                                          | yes      |
+| Konfiguration für Remotedesktops                                 | no       |
+| Kryptografiedienste                                              | yes      |
+| KtmRm für Distributed Transaction Coordinator                    | yes      |
+| Leistungsprotokolle und -warnungen                               | no       |
+| Microsoft .NET Frankwork NGEN v4.0.30319_X86                     | no       |
+| Microsoft Antimalware Service                                    | yes      |
+| Microsoft Edge-Update-Dienst (edgeupdate)                        | no       |
+| Microsoft Edge-Update-Dienst (edgeupdatem)                       | no       |
+| Microsoft Edge Elevation Service (MicrosoftEdgeElevationService) | no       |
+| Microsoft iSCSI-Initiator-Dienst                                 | no       |
+| Microsoft-Netzwerkinspektion                                     | yes      |
+| Microsoft-Softwareschattenkopie-Anbieter                         | no       |
+| Multimediaklassenplaner                                          | no       |
+| NAP-Agent (Network Access Protection)                            | yes      |
+| Netzwerklistendienst                                             | yes      |
+| Netzwerkspeicher-Schnittstellendienst                            | yes      |
+| Netzwerkverbindungen                                             | yes      |
+| NLA (Network Location Awareness)                                 | yes      |
+| Offlinedateien                                                   | no       |
+| Parental Controls                                                | no       |
+| Peer Name Resolution-Protokoll                                   | no       |
+| Peernetzwerk-Gruppenzuordnung                                    | no       |
+| Peernetzwerkidentitäts-Manager                                   | no       |
+| PnP-X-IP-Busenumerator                                           | no       |
+| PNRP-Computernamenveröffentlichungs-Dienst                       | no       |
+| Programmkompatibilitäts-Assistent-Dienst                         | no       |
+| QEMU Guest Agent                                                 | yes      |
+| QEMU Guest Agent VSS Provider                                    | yes      |
+| RAS-Verbindungsverwaltung                                        | no       |
+| Remodedesktopdienste                                             | yes      |
+| Remoteregistrierung                                              | no       |
+| Richtlinie zum Entfernen der Smartcard                           | no       |
+| RPC-Endpunktzuordnung                                            | yes      |
+| RPC-Locator                                                      | yes      |
+| Sekundäre Anmeldung                                              | no       |
+| Server                                                           | no       |
+| Server für Threadsortierung                                      | no       |
+| Shellhardwareerkennung                                           | no       |
+| Sicherheitscenter                                                | yes      |
+| Sicherheitskonto-Manager                                         | yes      |
+| Sitzungs-Manager für Desktopfenster-Manager                      | yes      |
+| Smartcard                                                        | no       |
+| SNMP-Trap                                                        | no       |
+| Speicherdienst                                                   | yes      |
+| SPP-Benachrichtigungsdienst                                      | no       |
+| SSDP-Suche                                                       | no       |
+| SSTP-Dienst                                                      | yes      |
+| Stromversorgung                                                  | no       |
+| Superfetch                                                       | yes      |
+| Tablet PC-Eingabedienst                                          | no       |
+| TCP/IP-NetBIOS-Hilfsdienst                                       | yes      |
+| Telefonie                                                        | yes      |
+| Unterstützung in der Systemsteuerung unter Lösungen für Probleme | no       |
+| UPnP-Gerätehost                                                  | no       |
+| Verbessertes Windows-Audio/Video-Streaming                       | no       |
+| Verbindungsschicht-Topologieerkennungs-Zuordnungsprogramm        | yes      |
+| Verschlüsseltes Dateisystem (EFS)                                | no       |
+| Verwaltung für automatische RAS-Verbindung                       | no       |
+| Virtueller Datenträger                                           | no       |
+| VMware SVGA Helper Service                                       | yes      |
+| Volumeschattenkopie                                              | no       |
+| WebClient                                                        | yes      |
+| Windows CardSpace                                                | no       |
+| Windows Defender                                                 | yes      |
+| Windows Driver Foundation - Benutzer-Treiberframework            | yes      |
+| Windows Installer                                                | yes      |
+| Windows Media Center-Empfängerdienst                             | no       |
+| Windows Media Center-Planerdienst                                | no       |
+| Windows Media Player-Netzwerkfreigabedienst                      | no       |
+| Windows Modules Installer                                        | no       |
+| Windows Presentation Foundation-Schriftartcache 3.0.0.0          | yes      |
+| Windows Search                                                   | no       |
+| Windows Update                                                   | no       |
+| Windows-Audio                                                    | no       |
+| Windows-Audio-Endpunkterstellung                                 | no       |
+| Windows-Bilderfassung (WIA)                                      | no       |
+| Windows-Biometriedienst                                          | no       |
+| Windows-Dienst für Schriftencache                                | no       |
+| Windows-Ereignisprotokoll                                        | no       |
+| Windows-Ereignissammlung                                         | no       |
+| Windows-Farbsystem                                               | no       |
+| Windows-Fehlerberichterstattungsdienst                           | no       |
+| Windows-Firewall                                                 | yes      |
+| Windows-Remoteverwaltung (WS-Verwaltung)                         | yes      |
+| Windows-Sicherung                                                | no       |
+| Windows-Sofortverbindung - Konfigurationsregistrierungsstelle    | no       |
+| Windows-Verwaltungsinstrumentation                               | yes      |
+| Windows-Zeitgeber                                                | yes      |
+| WinHTTP-Web Proxy Auto-Discovery-Dienst                          | no       |
+| WMI-Leistungsadapter                                             | no       |
+| WWAN - automatische Konfiguration                                | no       |
+| Zertifikatsverteilung                                            | no       |
+| Zugriff auf Eingabegeräte                                        | no       |
+| Überwachung verteilter Verknüpfungen (Client)                    | no       |
