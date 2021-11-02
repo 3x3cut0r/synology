@@ -13,7 +13,7 @@
 \# [License](#license)  
 
 # 1. deploy / docker-compose.yml <a name="deploy"></a>  
-**[see docker/docker-compose/firefox/docker-compose.yml](https://github.com/3x3cut0r/synology/main/docker/docker-compose/firefox/docker-compose.yml)**  
+**[see docker/docker-compose/firefox/docker-compose.yml](https://github.com/3x3cut0r/synology/blob/master/docker/docker-compose/firefox/docker-compose.yml)**  
 
 # 2. reverse-proxy / nginx configuration <a name="reverse-proxy"></a>  
 
