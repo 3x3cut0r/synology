@@ -29,8 +29,8 @@ services:
             UID: "1000"
             GID: "1000"
         volumes:
-            - /volume1/DockerHub/skel/data::/var/www/html
-            - /volume1/DockerHub/skel/conf::/etc/skel
+            - /volume1/docker/skel/data::/var/www/html
+            - /volume1/docker/skel/conf::/etc/skel
         depends_on:
             - app
 
