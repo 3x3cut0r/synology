@@ -1,0 +1,60 @@
+version: "3.9"
+
+# https://hub.docker.com/r/guacamole/guacamole
+services:
+  # https://hub.docker.com/r/guacamole/guacd
+    guacamole-guacd:
+        container_name: guacamole-guacd
+        image: guacamole/guacd:1.3.0
+        restart: unless-stopped
+      # ports:
+      # - "4822:4822"
+        networks:
+            guacamole:
+                ipv4_address: 10.20.176.3
+          # nginx:
+          #     ipv4_address: 10.24.0.199
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+
+  # https://hub.docker.com/r/guacamole/guacamole
+    guacamole:
+        container_name: guacamole
+        image: guacamole/guacamole:1.3.0
+        restart: unless-stopped
+        ports:
+            - "2211:8080"
+        networks:
+            guacamole:
+                ipv4_address: 10.20.176.2
+            mariadb:
+                ipv4_address: 10.20.0.211
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+        environment:
+            GUACD_HOSTNAME: guacamole-guacd
+            MYSQL_HOSTNAME: mariadb10
+            MYSQL_DATABASE: guacamole
+            MYSQL_USER: guacamole
+            MYSQL_PASSWORD: '<MYSQL_PASSWORD>'
+        depends_on:
+            - guacamole-guacd
+          # - mariadb // depends_on not working for external services!
+
+networks:
+    guacamole:
+        name: guacamole
+        ipam:
+            driver: default
+            config:
+                - subnet: "10.20.176.0/20"
+                  gateway: 10.20.176.1
+    mariadb:
+        external:
+            name: mariadb
