@@ -6,10 +6,8 @@
 
 1. [deploy / docker-compose.yml](#deploy)  
 2. [reverse-proxy / nginx configuration](#reverse-proxy)  
-3. [configuration](#configuration)  
-  3.1 [config-file](#config-file)  
-4. [usage](#usage)  
-  4.1 [browse](#browse)  
+3. [usage](#usage)  
+  3.1 [browse](#browse)  
 
 \# [Find Me](#findme)  
 \# [License](#license)  
@@ -38,11 +36,9 @@ Port: 5808 // Port of your Docker-Container
 ### 2.3 goto "Userdefined Header" and click on "Create / WebSocket"
 ### 2.4 Save your new created Reverse-Proxy entry
 
-# 3. configuration <a name="configuration"></a>  
+# 3. usage <a name="usage"></a>  
 
-# 4. usage <a name="usage"></a>  
-
-### 4.1 browse <a name="browse"></a>  
+### 3.1 browse <a name="browse"></a>  
 **Frontend**  
 [https://firefox.3x3cut0r.synology.me](https://firefox.3x3cut0r.synology.me)  
 
