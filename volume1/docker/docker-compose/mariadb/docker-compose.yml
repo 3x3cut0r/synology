@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  # https://hub.docker.com/_/mariadb
+    mariadb:
+        container_name: mariadb
+        image: mariadb:10-focal
+        command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+        restart: unless-stopped
+        networks:
+            mariadb:
+                ipv4_address: 10.20.0.2
+      # ports:
+      #     - 3306:3306
+        environment:
+            MYSQL_ROOT_PASSWORD: <MYSQL_ROOT_PASSWORD>
+            TZ: 'Europe/Berlin'
+        volumes:
+            - /volume1/docker/mariadb/data:/var/lib/mysql
+            - /volume1/docker/mariadb/conf:/etc/mysql/mariadb.conf.d
+
+  # https://hub.docker.com/_/phpmyadmin
+    phpmyadmin:
+        container_name: phpmyadmin
+        image: phpmyadmin/phpmyadmin:latest
+        restart: unless-stopped
+        networks:
+            mariadb:
+                ipv4_address: 10.20.0.3
+          # nginx:
+          #     ipv4_address: 10.24.0.200
+        ports:
+            - 2200:80
+        environment:
+            MYSQL_ROOT_PASSWORD: <MYSQL_ROOT_PASSWORD>
+            PMA_ARBITRARY: "1"
+            PMA_HOST: mariadb
+            PMA_VERBOSE: mariadb
+        volumes:
+            - /volume1/docker/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+            - /volume1/docker/phpmyadmin/php.ini:/usr/local/etc/php/conf.d/php.ini
+
+networks:
+    mariadb:
+        name: mariadb
+        ipam:
+            driver: default
+            config:
+                - subnet: "10.20.0.0/20"
+                  gateway: 10.20.0.1
+  # nginx:
+  #     external:
+  #         name: nginx
