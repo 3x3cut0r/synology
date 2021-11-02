@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  # https://hub.docker.com/r/jlesage/firefox
+    firefox:
+        container_name: firefox
+        image: jlesage/firefox:latest
+        shm_size: 2gb
+        restart: unless-stopped
+        networks:
+            firefox:
+                ipv4_address: 10.24.4.2
+        ports:
+            - 5808:5800
+          # - 5908:5900
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+        environment:
+            TZ: Europe/Berlin
+            VNC_PASSWORD: '<VNC_PASSWORD>'
+            USER_ID: "1024"
+            GROUP_ID: "100"
+            KEEP_APP_RUNNING: "1"
+            DISPLAY_WIDTH: "1280"
+            DISPLAY_HEIGHT: "800"
+            CLEAN_TMP_DIR: "1"
+        volumes:
+            - /volume1/docker/firefox:/config
+
+networks:
+    firefox:
+        name: firefox
+        ipam:
+            driver: default
+            config:
+                - subnet: "10.24.4.0/24"
+                  gateway: 10.24.4.1
