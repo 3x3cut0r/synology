@@ -1,0 +1,44 @@
+version: "3.9"
+
+# https://github.com/.../...
+services:
+  # https://hub.docker.com/r/...
+    skel:
+        container_name: skel
+        image: app/image:tag
+        restart: unless-stopped
+        env_file: ../../env-files/skel.env # correct (relative-) path for portainer
+        logging:
+            driver: "syslog"
+            options:
+                syslog-address: "udp://<ip>:514"
+        ports:
+            - "80:80"
+        networks:
+            skel:
+                ipv4_address: 10.24.99.2
+          # nginx:
+          #     ipv4_address: 10.24.0.199
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+        environment:
+            TZ: Europe/Berlin
+            UID: "1000"
+            GID: "1000"
+        volumes:
+            - /volume1/DockerHub/skel/data::/var/www/html
+            - /volume1/DockerHub/skel/conf::/etc/skel
+        depends_on:
+            - app
+
+networks:
+    skel:
+        name: skel
+        ipam:
+            driver: default
+            config:
+                - subnet: "10.24.99.0/24"
+                  gateway: 10.24.99.1
