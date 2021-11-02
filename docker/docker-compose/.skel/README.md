@@ -15,10 +15,28 @@
 \# [License](#license)  
 
 # 1. deploy / docker-compose.yml <a name="deploy"></a>  
-**[see docker/docker-compose/skel/docker-compose.yml](https://github.com/3x3cut0r/synology/main/docker/docker-compose/skel/docker-compose.yml)**  
+**[see docker/docker-compose/skel/docker-compose.yml](https://github.com/3x3cut0r/synology/blob/master/docker/docker-compose/skel/docker-compose.yml)**  
 
 # 2. reverse-proxy / nginx configuration <a name="reverse-proxy"></a>  
-**[see nginx/conf.d/skel.conf](https://github.com/3x3cut0r/synology/blob/main/nginx/conf.d/skel.conf)**  
+
+### 2.1 goto DSM / Control Panel / Application Portal / Advanced / Reverse-Proxy (DSM 7.x)
+### 2.2 create a new Reverse-Proxy entry
+**skel**  
+```shell
+Reverse-Proxy-Name: skel
+
+Source:
+Protocol: HTTPS
+Hostname: skel.3x3cut0r.synology.me
+Port: 443
+
+Destination:
+Protocol: HTTP
+Hostname: 192.168.178.254 // IP of your NAS
+Port: 5808 // Port of your Docker-Container
+```
+### 2.3 goto "Userdefined Header" and click on "Create / WebSocket"
+### 2.4 Save your new created Reverse-Proxy entry
 
 # 3. configuration <a name="configuration"></a>  
 
