@@ -7,10 +7,8 @@
 
 1. [deploy / docker-compose.yml](#deploy)  
 2. [reverse-proxy / nginx configuration](#reverse-proxy)  
-3. [configuration](#configuration)  
-  3.1 [config-file](#config-file)  
-4. [usage](#usage)  
-  4.1 [browse](#browse)  
+3. [usage](#usage)  
+  3.1 [browse](#browse)  
 
 \# [Find Me](#findme)  
 \# [License](#license)  
@@ -19,25 +17,34 @@
 **[see docker/docker-compose/guacamole/docker-compose.yml](https://github.com/3x3cut0r/synology/blob/master/docker/docker-compose/guacamole/docker-compose.yml)**  
 
 # 2. reverse-proxy / nginx configuration <a name="reverse-proxy"></a>  
-**[see nginx/conf.d/guacamole.conf](https://github.com/3x3cut0r/synology/blob/main/nginx/conf.d/guacamole.conf)**  
 
-# 3. configuration <a name="configuration"></a>  
-
-### 3.1 config-file <a name="config-file"></a>  
-**/etc/guacamole/settings.conf**  
+### 2.1 goto DSM / Control Panel / Application Portal / Advanced / Reverse-Proxy (DSM 7.x)
+### 2.2 create a new Reverse-Proxy entry
+**guacamole**  
 ```shell
-# ...
+Reverse-Proxy-Name: guacamole
 
+Source:
+Protocol: HTTPS
+Hostname: guacamole.3x3cut0r.synology.me
+Port: 443
+
+Destination:
+Protocol: HTTP
+Hostname: 192.168.178.254 // IP of your NAS
+Port: 5808 // Port of your Docker-Container
 ```
+### 2.3 goto "Userdefined Header" and click on "Create / WebSocket"
+### 2.4 Save your new created Reverse-Proxy entry
 
-# 4. usage <a name="usage"></a>  
+# 3. usage <a name="usage"></a>  
 
-### 4.1 browse <a name="browse"></a>  
+### 3.1 browse <a name="browse"></a>  
 **Frontend**  
-[https://guacamole.3x3cut0r.synology.me](https://guacamole.3x3cut0r.synology.me)  
+[https://guacamole.3x3cut0r.synology.me/guacamole/#/settings](https://guacamole.3x3cut0r.synology.me/guacamole/#/settings)  
 
 **Backend**  
-[https://guacamole.3x3cut0r.synology.me/admin](https://guacamole.3x3cut0r.synology.me/admin)  
+[https://guacamole.3x3cut0r.synology.me/guacamole/#/settings/sessions](https://guacamole.3x3cut0r.synology.me/guacamole/#/settings/sessions)  
 
 ### Find Me <a name="findme"></a>
 
