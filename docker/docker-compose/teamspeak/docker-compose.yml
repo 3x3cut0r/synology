@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  # https://hub.docker.com/_/teamspeak
+    teamspeak:
+        container_name: teamspeak
+        image: teamspeak:latest
+        restart: unless-stopped
+        networks:
+            teamspeak:
+                ipv4_address: 10.24.11.2
+            mariadb:
+                ipv4_address: 10.20.0.111
+        ports:
+            - 9987:9987/udp
+            - 10011:10011
+            - 30033:30033
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+        environment:
+            TS3SERVER_LICENSE: "accept"
+            TS3SERVER_LICENSEPATH: "/var/ts3server"
+            TS3SERVER_DB_SQLCREATEPATH: "create_mariadb"
+            TS3SERVER_DB_PLUGIN: "ts3db_mariadb"
+            TS3SERVER_DB_HOST: "mariadb"
+            TS3SERVER_DB_NAME: "teamspeak"
+            TS3SERVER_DB_USER: "teamspeak"
+            TS3SERVER_DB_PASSWORD: '<TS3SERVER_DB_PASSWORD>'
+          # TS3SERVER_DB_WAITUNTILREADY: 30
+        volumes:
+           - /volume1/docker/teamspeak/licensekey.dat:/var/ts3server/licensekey.dat
+
+networks:
+    teamspeak:
+        name: teamspeak
+        ipam:
+            driver: default
+            config:
+                - subnet: "10.24.11.0/24"
+                  gateway: 10.24.11.1
+    mariadb:
+        external:
+            name: mariadb
