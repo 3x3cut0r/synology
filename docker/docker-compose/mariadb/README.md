@@ -6,7 +6,7 @@
 
 1. [mariadb configuration](#mariadb_configuration)  
   1.1 [50-server.cnf](#50-server.cnf)  
-  1.2 [database security](#database_security)  
+  1.2 [OPTIONAL: database security](#database_security)  
 2. [phpmyadmin configuration](#phpmyadmin_configuration)  
   2.1 [php.ini](#php.ini)  
   2.2 [config.user.inc.php](#config.user.inc.php)  
@@ -53,7 +53,7 @@ innodb_buffer_pool_size = 8G
 
 **restart mariadb**  
 
-# 1.2. database security <a name="database_security"></a>  
+# 1.2. OPTIONAL: database security <a name="database_security"></a>  
 **download and exec mysqltuner.pl to check your database security:**  
 [mysqltuner.pl on GitHub](https://github.com/major/MySQLTuner-perl)  
 
