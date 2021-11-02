@@ -1,0 +1,65 @@
+version: "3.9"
+
+# https://hub.docker.com/r/linuxserver/tvheadend
+services:
+  # https://hub.docker.com/repository/docker/3x3cut0r/tvheadend-sundtek
+    tvheadend:
+        container_name: tvheadend
+        image: 3x3cut0r/tvheadend-sundtek:latest
+        restart: unless-stopped
+        ports:
+            - "9981:9981"
+            - "9982:9982"
+        networks:
+            tvheadend:
+                ipv4_address: 10.24.20.2
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+        environment:
+            TZ: Europe/Berlin
+            PUID: "1024"
+            PGID: "100"
+        volumes:
+            - /etc/localtime:/etc/localtime:ro
+            - /volume1/docker/tvheadend/config:/config
+            - /volume1/docker/tvheadend/picons:/picons
+            - /volume1/docker/tvheadend/sundtek:/sundtek # for sundtek usb devices only
+            - /volume1/video/recordings/tvheadend:/recordings # optional for recordings
+        devices:
+            - /dev/dri:/dev/dri
+            - /dev/dvb:/dev/dvb
+            - /dev/bus/usb
+
+  # https://hub.docker.com/r/linuxserver/oscam
+    oscam:
+        container_name: oscam
+        image: linuxserver/oscam:amd64-latest
+        restart: unless-stopped
+        ports:
+            - "8888:8888"
+        networks:
+            tvheadend:
+                ipv4_address: 10.24.20.3
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+        environment:
+            TZ: Europe/Berlin
+            PUID: "1024"
+            PGID: "100"
+        volumes:
+            - /volume1/docker/oscam/config:/config
+
+networks:
+    tvheadend:
+        name: tvheadend
+        ipam:
+            driver: default
+            config:
+                - subnet: "10.24.20.0/24"
+                  gateway: 10.24.20.1
