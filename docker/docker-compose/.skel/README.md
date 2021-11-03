@@ -33,7 +33,7 @@ Port: 443
 Destination:
 Protocol: HTTP
 Hostname: 192.168.178.254 // IP of your NAS
-Port: 5808 // Port of your Docker-Container
+Port: 0000 // Port of your Docker-Container
 ```
 ### 2.3 goto "Userdefined Header" and click on "Create / WebSocket"
 ### 2.4 Save your new created Reverse-Proxy entry
