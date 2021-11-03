@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+  # https://hub.docker.com/_/postgres
+    postgres:
+        container_name: postgres
+        image: postgres:13.4-alpine
+        restart: always
+        networks:
+            postgres:
+                ipv4_address: 10.20.16.2
+      # ports:
+      #     - "5432:5432"
+        environment:
+            POSTGRES_PASSWORD: '<POSTGRES_PASSWORD>'
+        volumes:
+            - /volume1/docker/postgres:/var/lib/postgresql/data
+
+  # https://hub.docker.com/r/dpage/pgadmin4
+    pgadmin:
+        container_name: pgadmin
+        image: dpage/pgadmin4:latest
+        restart: unless-stopped
+        networks:
+            postgres:
+                ipv4_address: 10.20.16.3
+        ports:
+            - 5050:5050
+        environment:
+            PGADMIN_DEFAULT_EMAIL: "executor55@gmx.de"
+            PGADMIN_DEFAULT_PASSWORD: '<PGADMIN_DEFAULT_PASSWORD>'
+            PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "True"
+            PGADMIN_LISTEN_PORT: "5050"
+        volumes:
+            - /volume1/docker/pgadmin:/var/lib/pgadmin
+            - /volume1/docker/pgadmin/certs:/certs
+
+  # https://hub.docker.com/_/adminer
+    adminer:
+        container_name: adminer
+        image: adminer:latest
+        restart: unless-stopped
+        networks:
+            postgres:
+                ipv4_address: 10.20.16.4
+        ports:
+            - 2201:8080
+
+networks:
+    postgres:
+        name: postgres
+        ipam:
+            driver: default
+            config:
+                - subnet: "10.20.16.0/20"
+                  gateway: 10.20.16.1
