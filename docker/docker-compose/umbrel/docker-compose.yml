@@ -1,0 +1,359 @@
+version: "3.9"
+
+# https://github.com/getumbrel/umbrel
+services:
+  # https://hub.docker.com/r/balabit/syslog-ng
+    umbrel-syslog-ng:
+        container_name: umbrel-syslog-ng
+        image: balabit/syslog-ng:latest
+        restart: unless-stopped
+        logging:
+            driver: "syslog"
+            options:
+                syslog-address: "udp://10.21.21.214:514"
+        volumes:
+            - /volume1/docker/umbrel/logs:/var/log
+        networks:
+            umbrel:
+                ipv4_address: 10.21.21.214
+
+  # https://hub.docker.com/r/lncm/tor
+    umbrel-tor:
+        container_name: umbrel-tor
+        image: lncm/tor:latest
+        restart: unless-stopped
+        logging:
+            driver: "syslog"
+            options:
+                syslog-address: "udp://10.21.21.214:514"
+        volumes:
+            - /volume1/docker/umbrel/tor/torrc:/etc/tor/torrc
+            - /volume1/docker/umbrel/tor/data:/var/lib/tor
+            - /volume1/docker/umbrel/tor/run:/var/run/tor
+      # ports:
+      #     - 9050:9050
+        networks:
+            umbrel:
+                ipv4_address: 10.21.21.11
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+        depends_on:
+            - umbrel-syslog-ng
+
+  # https://hub.docker.com/r/getumbrel/manager
+    umbrel-manager:
+        container_name: umbrel-manager
+        image: getumbrel/manager:latest
+        restart: always
+        logging:
+            driver: "syslog"
+            options:
+                syslog-address: "udp://10.21.21.214:514"
+        environment:
+            PORT: "3006"
+            USER_PASSWORD_FILE: "/db/user.json"
+            JWT_PUBLIC_KEY_FILE: "/db/jwt-public-key/jwt.pem"
+            JWT_PRIVATE_KEY_FILE: "/db/jwt-private-key/jwt.key"
+            JWT_EXPIRATION: "3600"
+            DOCKER_COMPOSE_DIRECTORY: "/volume1/docker/umbrel"
+            DEVICE_HOSTS: <DEVICE_HOSTS>
+            DEVICE_HOSTNAME: "umbrel.3x3cut0r.synology.me"
+            MIDDLEWARE_API_URL: "http://10.21.21.5"
+            MIDDLEWARE_API_PORT: "3005"
+            UMBREL_SEED_FILE: "/db/umbrel-seed/seed"
+            UMBREL_DASHBOARD_HIDDEN_SERVICE_FILE: "/var/lib/tor/web/hostname"
+            BITCOIN_P2P_HIDDEN_SERVICE_FILE: "/var/lib/tor/bitcoin-p2p/hostname"
+            BITCOIN_P2P_PORT: "8333"
+            BITCOIN_RPC_HIDDEN_SERVICE_FILE: "/var/lib/tor/bitcoin-rpc/hostname"
+            BITCOIN_RPC_PORT: "8332"
+            BITCOIN_RPC_USER: "umbrel"
+            BITCOIN_RPC_PASSWORD: <BITCOIN_RPC_PASSWORD>
+            LND_REST_HIDDEN_SERVICE_FILE: "/var/lib/tor/lnd-rest/hostname"
+            LND_GRPC_HIDDEN_SERVICE_FILE: "/var/lib/tor/lnd-grpc/hostname"
+            LND_CERT_FILE: "/lnd/tls.cert"
+            LND_ADMIN_MACAROON_FILE: "/lnd/data/chain/bitcoin/mainnet/admin.macaroon"
+            SHUTDOWN_SIGNAL_FILE: "/signals/shutdown"
+            REBOOT_SIGNAL_FILE: "/signals/reboot"
+            GITHUB_REPO: "getumbrel/umbrel"
+            UMBREL_VERSION_FILE: "/info.json"
+            UPDATE_STATUS_FILE: "/statuses/update-status.json"
+            UPDATE_SIGNAL_FILE: "/signals/update"
+            UPDATE_LOCK_FILE: "/statuses/update-in-progress"
+            BACKUP_STATUS_FILE: "/statuses/backup-status.json"
+            TOR_PROXY_IP: "10.21.21.11"
+            TOR_PROXY_PORT: "9050"
+            TOR_HIDDEN_SERVICE_DIR: "/var/lib/tor"
+            ELECTRUM_HIDDEN_SERVICE_FILE: "/var/lib/tor/electrum/hostname"
+            ELECTRUM_PORT: "50011"
+        volumes:
+            - /volume1/docker/umbrel:/volume1/docker/umbrel
+            - /volume1/docker/umbrel/info.json:/info.json
+            - /volume1/docker/umbrel/db:/db
+            - /volume1/docker/umbrel/events/signals:/signals
+            - /volume1/docker/umbrel/apps:/apps
+            - /volume1/docker/umbrel/lnd:/lnd:ro
+            - /volume1/docker/umbrel/statuses:/statuses
+            - /volume1/docker/umbrel/tor/data:/var/lib/tor/
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /usr/local/bin/docker:/usr/bin/docker
+            - /volume1/docker/umbrel/db/jwt-public-key:/jwt-public-key
+            - /volume1/docker/umbrel/db/jwt-private-key:/jwt-private-key
+      # ports:
+      #     - 3006:3006
+        networks:
+            umbrel:
+                ipv4_address: 10.21.21.4
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+        depends_on:
+            - umbrel-syslog-ng
+            - umbrel-tor
+
+  # https://hub.docker.com/r/lncm/bitcoind
+    umbrel-bitcoind:
+        container_name: umbrel-bitcoind
+        image: lncm/bitcoind:v22.0
+        restart: unless-stopped
+        logging:
+            driver: "syslog"
+            options:
+                syslog-address: "udp://10.21.21.214:514"
+        volumes:
+            - /volume1/docker/umbrel/bitcoin:/data/.bitcoin
+      # ports:
+      #     - 8332:8332
+      #     - 8333:8333
+      #     - 28332:28332
+      #     - 28333:28333
+        networks:
+            umbrel:
+                ipv4_address: 10.21.21.8
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+        depends_on:
+            - umbrel-syslog-ng
+            - umbrel-tor
+            - umbrel-manager
+
+  # https://hub.docker.com/r/lncm/lnd
+    umbrel-lnd:
+        container_name: umbrel-lnd
+        image: lncm/lnd:v0.13.3
+        restart: unless-stopped
+        logging:
+            driver: "syslog"
+            options:
+                syslog-address: "udp://10.21.21.214:514"
+        volumes:
+            - /volume1/docker/umbrel/lnd:/data/.lnd
+      # ports:
+      #     - 9735:9735
+      #     - 10009:10009
+        networks:
+            umbrel:
+                ipv4_address: 10.21.21.9
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+        depends_on:
+            - umbrel-syslog-ng
+            - umbrel-tor
+            - umbrel-manager
+
+  # https://hub.docker.com/r/getumbrel/electrs
+    umbrel-electrs:
+        container_name: umbrel-electrs
+        image: getumbrel/electrs:v0.8.11
+        restart: unless-stopped
+        logging:
+            driver: "syslog"
+            options:
+                syslog-address: "udp://10.21.21.214:514"
+        volumes:
+            - /volume1/docker/umbrel/bitcoin:/data/.bitcoin:ro
+            - /volume1/docker/umbrel/electrs:/data
+      # ports:
+      #     - 50011:50011
+        networks:
+            umbrel:
+                ipv4_address: 10.21.21.10
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+        depends_on:
+            - umbrel-syslog-ng
+            - umbrel-bitcoind
+
+  # https://hub.docker.com/r/getumbrel/middleware
+    umbrel-middleware:
+        container_name: umbrel-middleware
+        image: getumbrel/middleware:latest
+        restart: unless-stopped
+        logging:
+            driver: "syslog"
+            options:
+                syslog-address: "udp://10.21.21.214:514"
+        environment:
+            PORT: "3005"
+            BITCOIN_HOST: 10.21.21.8
+            RPC_PORT: "8332"
+            RPC_USER: "umbrel"
+            RPC_PASSWORD: '<BITCOIN_RPC_PASSWORD>'
+            LND_NETWORK: "mainnet"
+            LND_HOST: "10.21.21.9"
+            LND_PORT: "10009"
+            JWT_PUBLIC_KEY_FILE: "/jwt-public-key/jwt.pem"
+            DEVICE_HOSTS: <DEVICE_HOSTS>
+            TLS_FILE: "/lnd/tls.cert"
+            MACAROON_DIR: "/lnd/data/chain/bitcoin/mainnet/"
+        volumes:
+            - /volume1/docker/umbrel/lnd:/lnd
+            - /volume1/docker/umbrel/db/jwt-public-key:/jwt-public-key
+      # ports:
+      #     - 3005:3005
+        networks:
+            umbrel:
+                ipv4_address: 10.21.21.5
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+        depends_on:
+            - umbrel-syslog-ng
+            - umbrel-manager
+            - umbrel-bitcoind
+            - umbrel-lnd
+
+  # https://hub.docker.com/r/getumbrel/dashboard
+    umbrel-dashboard:
+        container_name: umbrel-dashboard
+        image: getumbrel/dashboard:latest
+        restart: unless-stopped
+        logging:
+            driver: "syslog"
+            options:
+                syslog-address: "udp://10.21.21.214:514"
+        environment:
+            VUE_APP_MANAGER_API_URL: "http://10.21.21.4:3006"
+            VUE_APP_MIDDLEWARE_API_URL: "http://10.21.21.5:3005"
+      # ports:
+      #     - 3004:3004
+        networks:
+            umbrel:
+                ipv4_address: 10.21.21.3
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+        depends_on:
+            - umbrel-syslog-ng
+
+  # https://hub.docker.com/_/nginx
+    umbrel-nginx:
+        container_name: umbrel-nginx
+        image: nginx:latest
+        restart: unless-stopped
+        logging:
+            driver: "syslog"
+            options:
+                syslog-address: "udp://10.21.21.214:514"
+        volumes:
+            - /volume1/docker/umbrel/nginx/:/etc/nginx
+      # ports:
+      #     - 80:80
+        networks:
+            umbrel:
+                ipv4_address: 10.21.21.2
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+        depends_on:
+            - umbrel-syslog-ng
+            - umbrel-dashboard
+            - umbrel-manager
+
+  # https://hub.docker.com/r/getumbrel/frontail
+    umbrel-frontail:
+        container_name: umbrel-frontail
+        image: getumbrel/frontail:latest
+        command: /var/log/syslog --url-path /logs --number 1000 --disable-usage-stats
+        restart: unless-stopped
+        logging:
+            driver: "syslog"
+            options:
+                syslog-address: "udp://10.21.21.214:514"
+        volumes:
+            - /volume1/docker/umbrel/logs/messages:/var/log/syslog:ro
+        networks:
+            umbrel:
+                ipv4_address: 10.21.21.7
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+        depends_on:
+            - umbrel-syslog-ng
+
+  # https://hub.docker.com/r/getumbrel/neutrino-switcher
+    # umbrel-neutrino-switcher:
+    #     container_name: umbrel-neutrino-switcher
+    #     image: getumbrel/neutrino-switcher:latest
+    #     command: ./wait-for-node-manager.sh umbrel-manager npm start
+    #     restart: unless-stopped
+    #     logging:
+    #         driver: "syslog"
+    #         options:
+    #             syslog-address: "udp://10.21.21.214:514"
+    #     environment:
+    #         JSONRPCURL: "http://10.21.21.8:8332"
+    #         RPCUSER: "umbrel"
+    #         RPCPASS: <BITCOIN_RPC_PASSWORD>
+    #         LND_CONTAINER_NAME: umbrel-lnd
+    #         BITCOIN_CONTAINER_NAME: umbrel-bitcoind
+    #         SLEEPTIME: 3600
+    #     volumes:
+    #         - /volume1/docker/umbrel/lnd:/lnd
+    #         - /volume1/docker/umbrel/bitcoin:/bitcoin
+    #         - /volume1/docker/umbrel/statuses:/statuses
+    #         - /run/user/1000/docker.sock:/var/run/docker.sock
+    #   # ports:
+    #   #     - 80:80
+    #     networks:
+    #         umbrel:
+    #             ipv4_address: 10.21.21.6
+    #     dns:
+    #         - 8.8.8.8
+    #         - 8.8.4.4
+    #         - 2001:4860:4860::8888
+    #         - 2001:4860:4860::8844
+    #     depends_on:
+    #         - umbrel-syslog-ng
+    #         - umbrel-bitcoind
+    #         - umbrel-lnd
+
+networks:
+    umbrel:
+        name: umbrel
+        ipam:
+            driver: default
+            config:
+                - subnet: "10.21.21.0/24"
+                  gateway: 10.21.21.1
