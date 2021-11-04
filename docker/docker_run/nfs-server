@@ -1,0 +1,12 @@
+### NFS-Server ###
+
+### NFS-Server ###
+# https://hub.docker.com/r/erichough/nfs-server
+
+docker container run -d --restart=unless-stopped \
+    --cap-add SYS_ADMIN \
+    --name=nfs-server \
+    -p 2049:2049 \
+    -v /volume1/docker/nfs-server/exports:/etc/exports:ro \
+    -v /volume1/docker/nfs-server/nfsroot/:/nfsroot:rw \
+    erichough/nfs-server:latest
