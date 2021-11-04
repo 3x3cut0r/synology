@@ -1,0 +1,11 @@
+### yacht ###
+
+### phpMyAdmin ###
+# https://hub.docker.com/r/selfhostedpro/yacht
+
+docker container run -d --restart=unless-stopped \
+    --name=yacht \
+    -p 8100:8000 \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /volume1/docker/yacht:/config \
+    selfhostedpro/yacht:latest
