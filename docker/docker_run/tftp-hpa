@@ -1,0 +1,11 @@
+### TFTP-HPA ###
+
+### TFTP-HPA ###
+# https://hub.docker.com/r/3x3cut0r/tftp-hpa
+
+docker container run -d --restart=unless-stopped \
+    --name=tftp-hpa \
+    -e CREATE=1 \
+    -p 69:9069/udp \
+    -v /volume1/docker/tftp-hpa:/tftpboot \
+    3x3cut0r/tftp-hpa:latest
