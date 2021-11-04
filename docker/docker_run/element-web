@@ -1,0 +1,15 @@
+### element-web ###
+
+### Network ###
+# requires synapse-net
+# see synapse
+
+### pihole ###
+# https://hub.docker.com/r/bubuntux/element-web
+
+docker container run -d --restart=unless-stopped \
+    --name=element-web \
+    --network synapse-net \
+    -p 8093:80 \
+    -v /volume1/docker/element-web/config.json:/etc/element-web/config.json:ro \
+    bubuntux/element-web:latest
