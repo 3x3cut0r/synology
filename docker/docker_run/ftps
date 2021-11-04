@@ -1,0 +1,24 @@
+### FTPs ###
+
+### FTPs ###
+# https://hub.docker.com/r/chonjay21/ftps
+
+docker container run -d --restart=unless-stopped \
+    --name=ftps \
+    -e APP_USER_NAME=bitcoind \
+    -e APP_USER_PASSWD='<APP_USER_PASSWD>' \
+    -e APP_UID=1024 \
+    -e APP_GID=100 \
+    -e PASSV_MIN_PORT=60000 \
+    -e PASSV_MAX_PORT=60010 \
+    -e FORCE_REINIT_CONFIG=false \
+    -e USE_SSL=true \
+    -e APP_UMASK=007 \
+    -e TZ='Europe/Berlin' \
+    -e FTPS_USER_HOME='/home/vsftpd' \
+    -p 5921:21 \
+    -p 60000-60010:60000-60010 \
+    -v /volume2/bitcoind/:/home/vsftpd/data/ \
+    -v /volume1/docker/ftps/cert.key:/usr/certs/cert.key:ro \
+    -v /volume1/docker/ftps/cert.crt:/usr/certs/cert.crt:ro \
+    chonjay21/ftps:latest
