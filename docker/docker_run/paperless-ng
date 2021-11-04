@@ -1,0 +1,91 @@
+### Paperless-ng ###
+
+### Network ###
+# require postgres-net
+# see postgres
+#
+# require redis-net
+# see redis
+
+docker network create \
+    --driver=bridge \
+    --subnet=172.24.7.0/24 \
+    --gateway=172.24.7.1 \
+    paperless-net
+
+### gotenberg ###
+docker container run -d --restart=unless-stopped \
+    --name=gotenberg \
+    --network=paperless-net \
+    -e DISABLE_GOOGLE_CHROME=1 \
+    thecodingmachine/gotenberg:latest
+
+### tika ###
+docker container run -d --restart=unless-stopped \
+    --name=tika \
+    --network=paperless-net \
+    apache/tika:latest
+
+### paperless-ng ###
+# https://hub.docker.com/r/jonaswinkler/paperless-ng
+
+docker container run -d --restart=unless-stopped \
+    --name=paperless-ng \
+    --network=postgres-net \
+    -e PAPERLESS_TIME_ZONE='Europe/Berlin' \
+    -e USERMAP_UID=1024 \
+    -e USERMAP_GID=100 \
+    -e PAPERLESS_REDIS='redis://redis-nopw:6379' \
+    -e PAPERLESS_DBHOST='postgres' \
+    -e PAPERLESS_DBPORT= \
+    -e PAPERLESS_DBNAME='paperless-ng' \
+    -e PAPERLESS_DBUSER='paperless-ng' \
+    -e PAPERLESS_DBPASS='<PAPERLESS_DBPASS>' \
+    -e PAPERLESS_DBSSLMODE=prefer \
+    -e PAPERLESS_LOGROTATE_MAX_SIZE=1 \
+    -e PAPERLESS_LOGROTATE_MAX_BACKUPS=20 \
+    -e PAPERLESS_SECRET_KEY='<PAPERLESS_SECRET_KEY>' \
+    -e PAPERLESS_OCR_LANGUAGE='deu' \
+    -e PAPERLESS_ADMIN_USER='admin' \
+    -e PAPERLESS_ADMIN_PASSWORD='<PAPERLESS_ADMIN_PASSWORD>' \
+    -e PAPERLESS_ADMIN_MAIL='executor55@gmx.de' \
+    -e PAPERLESS_OCR_MODE='skip' \
+    -e PAPERLESS_OCR_CLEAN='clean' \
+    -e PAPERLESS_OCR_DESKEW=true \
+    -e PAPERLESS_OCR_ROTATE_PAGES=true \
+    -e PAPERLESS_OCR_ROTATE_PAGES_THRESHOLD=12 \
+    -e PAPERLESS_OCR_OUTPUT_TYPE=pdfa \
+    -e PAPERLESS_OCR_PAGES=0 \
+    -e PAPERLESS_OCR_IMAGE_DPI='' \
+    -e PAPERLESS_TIKA_ENABLED=1 \
+    -e PAPERLESS_TIKA_GOTENBERG_ENDPOINT='http://gotenberg:3000' \
+    -e PAPERLESS_TIKA_ENDPOINT='http://tika:9998' \
+    -e PAPERLESS_TASK_WORKERS=2 \
+    -e PAPERLESS_THREADS_PER_WORKER=1 \
+    -e PAPERLESS_WEBSERVER_WORKERS=2 \
+    -e PAPERLESS_CONSUMER_POLLING=0 \
+    -e PAPERLESS_CONSUMER_DELETE_DUPLICATES=false \
+    -e PAPERLESS_CONSUMER_RECURSIVE=false \
+    -e PAPERLESS_CONSUMER_SUBDIRS_AS_TAGS=false \
+    -e PAPERLESS_CONVERT_MEMORY_LIMIT=0 \
+    -e PAPERLESS_CONVERT_TMPDIR='' \
+    -e PAPERLESS_OPTIMIZE_THUMBNAILS=true \
+    -e PAPERLESS_POST_CONSUME_SCRIPT='' \
+    -e PAPERLESS_FILENAME_DATE_ORDER= \
+    -e PAPERLESS_THUMBNAIL_FONT_NAME='/usr/share/fonts/liberation/LiberationSerif-Regular.ttf' \
+    -e PAPERLESS_IGNORE_DATES='1900-01-31,31.01.1900' \
+    -e PAPERLESS_DATE_ORDER='DMY' \
+    -e PAPERLESS_CONVERT_BINARY='/usr/bin/convert' \
+    -e PAPERLESS_GS_BINARY='/usr/bin/gs' \
+    -e PAPERLESS_OPTIPNG_BINARY='/usr/bin/optipng' \
+    -p 8110:8000 \
+    -v /volume1/docker/paperless-ng/data:/usr/src/paperless/data \
+    -v /volume1/docker/paperless-ng/media:/usr/src/paperless/media \
+    -v /volume1/docker/paperless-ng/export:/usr/src/paperless/export \
+    -v /volume1/docker/paperless-ng/consume:/usr/src/paperless/consume \
+    jonaswinkler/paperless-ng:latest
+
+# connect paperless-ng to paperless-net, redis-nopw-net
+
+docker network connect paperless-net paperless-ng
+docker network connect redis-nopw-net paperless-ng
