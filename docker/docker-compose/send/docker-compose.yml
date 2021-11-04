@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+    send:
+        container_name: send
+        image: mozilla/send:v3.0.22
+        restart: unless-stopped
+        networks:
+            send:
+                ipv4_address: 10.24.8.2
+            redis-nopw:
+                ipv4_address: 10.20.112.108
+        ports:
+            - "1443:1443"
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+        environment:
+            REDIS_HOST: "redis-nopw"
+            MAX_FILE_SIZE: "2147483648"
+            NODE_ENV: "production"
+            BASE_URL: "https://send.3x3cut0r.synology.me"
+
+networks:
+    send:
+        name: send
+        ipam:
+            driver: default
+            config:
+                - subnet: "10.24.8.0/24"
+                  gateway: 10.24.8.1
+    redis-nopw:
+        external:
+            name: redis-nopw
