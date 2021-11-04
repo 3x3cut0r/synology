@@ -22,10 +22,11 @@ umbrel was adjusted here so that it runs on a virtual private server
 ```shell
 UMBREL_ROOT=/volume1/docker/umbrel
 DEVICE_HOSTNAME="umbrel.3x3cut0r.synology.me"
-mkdir -p $UMBREL_ROOT
+# create UMBREL_ROOT using DSM FileStation
+# mkdir -p $UMBREL_ROOT
 cd $UMBREL_ROOT
 wget -p https://github.com/getumbrel/umbrel/archive/master.zip -O master.zip
-unzip master.zip
+7z x master.zip
 mv umbrel-master/* .
 rm -rf master.zip umbrel-master
 mkdir -p $UMBREL_ROOT/db/jwt-public-key
@@ -35,13 +36,13 @@ mkdir -p $UMBREL_ROOT/db/jwt-private-key
 
 # 2. download config-files <a name="download-config-files"></a>
 ```shell
-wget -p https://raw.githubusercontent.com/3x3cut0r/synology/main/docker/docker-compose/umbrel/tor/torrc -O $UMBREL_ROOT/tor/torrc
-wget -p https://raw.githubusercontent.com/3x3cut0r/synology/main/docker/docker-compose/umbrel/bitcoin/bitcoin.conf -O $UMBREL_ROOT/bitcoin/bitcoin.conf
-wget -p https://raw.githubusercontent.com/3x3cut0r/synology/main/docker/docker-compose/umbrel/lnd/lnd.conf -O $UMBREL_ROOT/lnd/lnd.conf
-wget -p https://raw.githubusercontent.com/3x3cut0r/synology/main/docker/docker-compose/umbrel/nginx/nginx.conf -O $UMBREL_ROOT/nginx/nginx.conf
-wget -p https://raw.githubusercontent.com/3x3cut0r/synology/main/docker/docker-compose/umbrel/electrs/electrs.toml -O $UMBREL_ROOT/electrs/electrs.toml
-wget -p https://raw.githubusercontent.com/3x3cut0r/synology/main/docker/docker-compose/umbrel/docker-compose.yml -O $UMBREL_ROOT/docker-compose.yml
-wget -p https://raw.githubusercontent.com/3x3cut0r/synology/main/docker/docker-compose/umbrel/.env -O $UMBREL_ROOT/.env
+wget -p https://raw.githubusercontent.com/3x3cut0r/synology/master/docker/docker-compose/umbrel/tor/torrc -O $UMBREL_ROOT/tor/torrc
+wget -p https://raw.githubusercontent.com/3x3cut0r/synology/master/docker/docker-compose/umbrel/bitcoin/bitcoin.conf -O $UMBREL_ROOT/bitcoin/bitcoin.conf
+wget -p https://raw.githubusercontent.com/3x3cut0r/synology/master/docker/docker-compose/umbrel/lnd/lnd.conf -O $UMBREL_ROOT/lnd/lnd.conf
+wget -p https://raw.githubusercontent.com/3x3cut0r/synology/master/docker/docker-compose/umbrel/nginx/nginx.conf -O $UMBREL_ROOT/nginx/nginx.conf
+wget -p https://raw.githubusercontent.com/3x3cut0r/synology/master/docker/docker-compose/umbrel/electrs/electrs.toml -O $UMBREL_ROOT/electrs/electrs.toml
+wget -p https://raw.githubusercontent.com/3x3cut0r/synology/master/docker/docker-compose/umbrel/docker-compose.yml -O $UMBREL_ROOT/docker-compose.yml
+wget -p https://raw.githubusercontent.com/3x3cut0r/synology/master/docker/docker-compose/umbrel/.env -O $UMBREL_ROOT/.env
 
 ```
 
@@ -49,7 +50,7 @@ wget -p https://raw.githubusercontent.com/3x3cut0r/synology/main/docker/docker-c
 **tor:**
 ```shell
 TOR_PASSWORD=$($UMBREL_ROOT/scripts/rpcauth.py "itdoesntmatter" | tail -1)
-TOR_HASHED_PASSWORD=$(docker run --rm getumbrel/tor:latest --quiet --hash-password "$TOR_PASSWORD")
+TOR_HASHED_PASSWORD=$(sudo docker container run --rm getumbrel/tor:latest --quiet --hash-password "$TOR_PASSWORD")
 sed -i s/#HashedControlPassword\ 16:872860B76453A77D60CA2BB8C1A7042072093276A3D701AD684053EC4C/HashedControlPassword\ $TOR_HASHED_PASSWORD/g $UMBREL_ROOT/tor/torrc
 
 ```
@@ -70,7 +71,7 @@ sed -i s/\;\ tor.password=plsdonthackme/tor.password=$TOR_PASSWORD/g $UMBREL_ROO
 **docker-compose.yml:**
 ```shell
 sed -i s/\<BITCOIN_RPC_PASSWORD\>/\"$BITCOIN_RPC_PASS\"/g $UMBREL_ROOT/docker-compose.yml
-sed -i s#/var/run/docker.sock\:/var/run/docker.sock#/run/user/$(id -u)/docker.sock\:/var/run/docker.sock#g $UMBREL_ROOT/docker-compose.yml
+#sed -i s#/var/run/docker.sock\:/var/run/docker.sock#/run/user/$(id -u)/docker.sock\:/var/run/docker.sock#g $UMBREL_ROOT/docker-compose.yml
 sed -i s#/volume1/docker/umbrel#$UMBREL_ROOT#g $UMBREL_ROOT/docker-compose.yml
 sed -i s#/usr/local/bin/docker\:/usr/bin/docker#$(which docker):/usr/bin/docker#g $UMBREL_ROOT/docker-compose.yml
 sed -i s#DEVICE_HOSTNAME=\"umbrel.3x3cut0r.synology.me\"#DEVICE_HOSTNAME=\"$DEVICE_HOSTNAME\"#g $UMBREL_ROOT/docker-compose.yml
@@ -97,13 +98,13 @@ touch "$UMBREL_ROOT/statuses/node-status-bitcoind-ready"
 ```shell
 sudo chmod 777 -R $UMBREL_ROOT/tor
 
-docker network create \
+sudo docker network create \
     --driver=bridge \
     --subnet=10.21.21.0/24 \
     --gateway=10.21.21.1 \
     umbrel
 
-docker container run -d --restart=unless-stopped \
+sudo docker container run -d --restart=unless-stopped \
     --name=umbrel-tor \
     --network=umbrel \
     --ip=10.21.21.11 \
@@ -124,8 +125,8 @@ sed -i s#\<DEVICE_HOSTS\>#\"$DEVICE_HOSTS\"#g $UMBREL_ROOT/docker-compose.yml
 ```
 **stop and remove tor (to avoid errors with docker-compose):**  
 ```shell
-docker container rm -f umbrel-tor
-docker network rm umbrel
+sudo docker container rm -f umbrel-tor
+sudo docker network rm umbrel
 
 ```
 

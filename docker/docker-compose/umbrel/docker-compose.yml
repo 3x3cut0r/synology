@@ -333,7 +333,7 @@ services:
     #         - /volume1/docker/umbrel/lnd:/lnd
     #         - /volume1/docker/umbrel/bitcoin:/bitcoin
     #         - /volume1/docker/umbrel/statuses:/statuses
-    #         - /run/user/1000/docker.sock:/var/run/docker.sock
+    #         - /var/run/docker.sock:/var/run/docker.sock
     #   # ports:
     #   #     - 80:80
     #     networks:
