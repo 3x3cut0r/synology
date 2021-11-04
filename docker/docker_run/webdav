@@ -1,0 +1,15 @@
+### WebDAV ###
+
+### WebDAV ###
+# https://hub.docker.com/r/ugeek/webdav
+
+docker container run -d --restart=unless-stopped \
+    --name=webdav \
+    -e TZ='Europe/Berlin' \
+    -e USERNAME=vps_webdav \
+    -e PASSWORD="<PASSWORD>" \
+    -e UDI=1024 \
+    -e GID=100 \
+    -p 9006:80 \
+    -v /volume2/vps_webdav:/data/media \
+    ugeek/webdav:amd64-alpine
