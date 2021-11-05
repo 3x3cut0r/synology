@@ -70,7 +70,7 @@ sed -i s/\;\ tor.password=plsdonthackme/tor.password=$TOR_PASSWORD/g $UMBREL_ROO
 ```
 **docker-compose.yml:**
 ```shell
-sed -i s/\<BITCOIN_RPC_PASSWORD\>/\"$BITCOIN_RPC_PASS\"/g $UMBREL_ROOT/docker-compose.yml
+sed -i s/\<BITCOIN_RPC_PASSWORD\>/\'$BITCOIN_RPC_PASS\'/g $UMBREL_ROOT/docker-compose.yml
 #sed -i s#/var/run/docker.sock\:/var/run/docker.sock#/run/user/$(id -u)/docker.sock\:/var/run/docker.sock#g $UMBREL_ROOT/docker-compose.yml
 sed -i s#/volume1/docker/umbrel#$UMBREL_ROOT#g $UMBREL_ROOT/docker-compose.yml
 sed -i s#/usr/local/bin/docker\:/usr/bin/docker#$(which docker):/usr/bin/docker#g $UMBREL_ROOT/docker-compose.yml
