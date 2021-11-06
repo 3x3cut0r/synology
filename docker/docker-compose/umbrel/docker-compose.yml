@@ -211,7 +211,7 @@ services:
             BITCOIN_HOST: 10.21.21.8
             RPC_PORT: "8332"
             RPC_USER: "umbrel"
-            RPC_PASSWORD: '<BITCOIN_RPC_PASSWORD>'
+            RPC_PASSWORD: <BITCOIN_RPC_PASSWORD>
             LND_NETWORK: "mainnet"
             LND_HOST: "10.21.21.9"
             LND_PORT: "10009"
