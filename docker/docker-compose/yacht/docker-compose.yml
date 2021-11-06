@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  # https://hub.docker.com/r/selfhostedpro/yacht
+    yacht:
+        container_name: yacht
+        image: selfhostedpro/yacht:latest
+        restart: always
+        networks:
+            yacht:
+                ipv4_address: 10.24.2.2
+            postgres:
+                ipv4_address: 10.20.16.102
+        ports:
+            - "2102:8000"
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /volume1/docker/yacht:/config
+        environment:
+            PUID: "1024"
+            PGID: "100"
+            SECRET_KEY: '<GENERATE_YOUR_OWN_SECRET_KEY_AND_PASTE_HERE>'
+            ADMIN_EMAIL: "executor55@gmx.de" # default passwort = pass
+          # DATABASE_URL: "postgresql://user:password@postgresserver/db"
+            DATABASE_URL: "postgresql://yacht:<YACHT_POSTGRES_PASSWORD>@postgres/yacht"
+          # COMPOSE_DIR: ""/config/docker-compose"
+          # DISABLE_AUTH: "true"
+
+networks:
+    yacht:
+        name: yacht
+        ipam:
+            driver: default
+            config:
+                - subnet: "10.24.2.0/24"
+                  gateway: 10.24.2.1
+    postgres:
+        external:
+            name: postgres
