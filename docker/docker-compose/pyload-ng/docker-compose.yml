@@ -1,0 +1,35 @@
+version: "3.9"
+
+# https://github.com/linuxserver/docker-pyload-ng/
+services:
+  # https://github.com/linuxserver/docker-pyload-ng/
+    pyload-ng:
+        container_name: pyload-ng
+        image: lscr.io/linuxserver/pyload-ng:latest
+        restart: unless-stopped
+        ports:
+            - "8000:8000"
+        networks:
+            pyload-ng:
+                ipv4_address: 10.24.7.2
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+        environment:
+            TZ: "Europe/Berlin"
+            PUID: "1024"
+            PGID: "100"
+        volumes:
+            - /volume1/docker/pyload-ng:/config
+            - /volume1/downloads:/downloads
+
+networks:
+    pyload-ng:
+        name: pyload-ng
+        ipam:
+            driver: default
+            config:
+                - subnet: "10.24.7.0/24"
+                  gateway: 10.24.7.1
