@@ -1,0 +1,330 @@
+version: '3.9'
+
+services:
+  bitcoind:
+    container_name: bitcoind
+    image: lncm/bitcoind
+    restart: unless-stopped
+    user: '1024:100'
+    stop_grace_period: 15m30s
+    command: >
+      -port=8333
+      -rpcport=8332
+      -rpcbind=0.0.0.0
+      -rpcallowip=10.21.0.0/16
+      -rpcallowip=0.0.0.0
+      -rpcauth="${BITCOIN_RPC_AUTH}"
+      -zmqpubrawblock=tcp://0.0.0.0:28332
+      -zmqpubrawtx=tcp://0.0.0.0:28333
+      -zmqpubhashblock=tcp://0.0.0.0:28334
+      -zmqpubsequence=tcp://0.0.0.0:28335
+    ports:
+      - '8332:8332'
+      - '8333:8333'
+      - '28332:28332'
+      - '28333:28333'
+    networks:
+      crypto:
+        ipv4_address: '10.21.22.3'
+    volumes:
+      - '${CRYPTO_ROOT}/bitcoin/node:/data/.bitcoin'
+
+  bitcoin_gui:
+    container_name: bitcoin_gui
+    image: getumbrel/umbrel-bitcoin:v0.7.0
+    restart: unless-stopped
+    ports:
+      - '3005:3005'
+    networks:
+      crypto:
+        ipv4_address: '10.21.22.4'
+    environment:
+      PORT: '3005'
+      BITCOIN_HOST: '10.21.22.3'
+      RPC_PORT: '8333'
+      BITCOIN_RPC_PORT: '8333'
+      RPC_USER: 'bitcoind'
+      BITCOIN_RPC_USER: 'bitcoind'
+      RPC_PASSWORD: '${BITCOIN_RPC_PASSWORD}'
+      BITCOIN_RPC_PASSWORD: '${BITCOIN_RPC_PASSWORD}'
+      BITCOIN_RPC_HIDDEN_SERVICE: '${BITCOIN_RPC_HIDDEN_SERVICE}'
+      BITCOIN_P2P_HIDDEN_SERVICE: '${BITCOIN_RPC_HIDDEN_SERVICE}'
+      BITCOIN_P2P_PORT: '8333'
+      DEVICE_DOMAIN_NAME: 'crypto.3x3cut0r.synology.me'
+      BITCOIN_DEFAULT_NETWORK: 'main'
+      BITCOIN_INITIALIZE_WITH_CLEARNET_OVER_TOR: 'true'
+      BITCOIND_IP: '10.21.22.3'
+      TOR_PROXY_IP: '10.21.22.1'
+      TOR_PROXY_PORT: '9052'
+      TOR_PROXY_CONTROL_PORT: '9053'
+      TOR_PROXY_CONTROL_PASSWORD: '${TOR_PASSWORD}'
+      I2P_DAEMON_IP: '10.21.22.2'
+      I2P_DAEMON_PORT: '7656'
+    volumes:
+      - '${CRYPTO_ROOT}/volumes/bitcoin/gui:/data'
+      - '${CRYPTO_ROOT}/volumes/bitcoin/node:/bitcoin/.bitcoin'
+    depends_on:
+      - bitcoind
+
+  tor:
+    container_name: tor
+    image: lncm/tor:0.4.7.13
+    restart: unless-stopped
+    user: '1024:100'
+    networks:
+      crypto:
+        ipv4_address: '10.21.22.1'
+    volumes:
+      - '${CRYPTO_ROOT}/volumes/tor/torrc/torrc:/etc/tor/torrc:ro'
+      - '${CRYPTO_ROOT}/volumes/tor/data:/data'
+    environment:
+      HOME: '/tmp'
+
+  i2pd:
+    container_name: i2pd
+    image: purplei2p/i2pd:release-2.52.0
+    restart: unless-stopped
+    user: 'root'
+    command: >
+      --sam.enabled=true
+      --sam.address=0.0.0.0
+      --sam.port=7656
+      --loglevel=error
+    networks:
+      crypto:
+        ipv4_address: '10.21.22.2'
+    volumes:
+      - '${CRYPTO_ROOT}/volumes/i2pd:/home/i2pd/data'
+
+  lnd:
+    container_name: lnd
+    image: lightninglabs/lnd:v0.17.4-beta
+    restart: unless-stopped
+    user: '1024:100'
+    command: >
+      --configfile=/data/.lnd/umbrel-lnd.conf
+      --listen=0.0.0.0:9735
+      --rpclisten=0.0.0.0:10009
+      --restlisten=0.0.0.0:8080
+      --bitcoin.active
+      --bitcoin.mainnet
+      --bitcoin.node=bitcoind
+      --bitcoind.rpchost=10.21.22.3:8332
+      --bitcoind.rpcuser=bitcoind
+      --bitcoind.rpcpass="${BITCOIN_RPC_PASSWORD}"
+      --bitcoind.zmqpubrawblock=tcp://10.21.22.3:28332
+      --bitcoind.zmqpubrawtx=tcp://10.21.22.3:28333
+      --tor.active
+      --tor.v3
+      --tor.control=10.21.22.1:9053
+      --tor.socks=10.21.22.1:9052
+      --tor.targetipaddress=10.21.22.8
+      --tor.password="${TOR_HASHED_PASSWORD}"
+    ports:
+      - '9735:9735'
+      - '8080:8080'
+      - '10009:10009'
+    networks:
+      crypto:
+        ipv4_address: '10.21.22.8'
+    environment:
+      HOME: '/data'
+    volumes:
+      - '${CRYPTO_ROOT}/volumes/lightning/lnd:/data/.lnd'
+    hostname: 'crypto.3x3cut0r.synology.me'
+    depends_on:
+      - tor
+
+  lnd_gui:
+    container_name: lnd_gui
+    image: getumbrel/umbrel-lightning:v1.2.0
+    restart: unless-stopped
+    ports:
+      - '3008:3008'
+    networks:
+      crypto:
+        ipv4_address: '10.21.22.9'
+    environment:
+      PORT: '3008'
+      TOR_PROXY_IP: '10.21.22.1'
+      TOR_PROXY_PORT: '9052'
+      BITCOIN_HOST: '10.21.22.3'
+      RPC_PORT: '8332'
+      RPC_USER: 'bitcoind'
+      RPC_PASSWORD: '${BITCOIN_RPC_PASSWORD}'
+      LND_NETWORK: 'mainnet'
+      LND_HOST: '10.21.22.8'
+      LND_REST_HIDDEN_SERVICE: './volumes/tor/data/app-lightning-rest/hostname'
+      LND_GRPC_HIDDEN_SERVICE: './volumes/tor/data/app-lightning-grpc/hostname'
+      TLS_FILE: '/data/.lnd/tls.cert'
+      MACAROON_DIR: '/data/.lnd/data/chain/bitcoin/mainnet/'
+      CHANNEL_BACKUP_FILE: '/data/.lnd/data/chain/bitcoin/mainnet/channel.backup'
+      BACKUP_STATUS_FILE: '/data/backup-status.json'
+      JSON_STORE_FILE: '/data/state.json'
+      JSON_SETTINGS_FILE: '/data/settings.json'
+      UMBREL_LND_CONF_FILEPATH: '/data/.lnd/umbrel-lnd.conf'
+      LND_CONF_FILEPATH: '/data/.lnd/lnd.conf'
+      LND_INITIALIZE_WITH_TOR_ONLY: 'true'
+      DEVICE_DOMAIN_NAME: 'crypto.3x3cut0r.synology.me'
+      EXPLORER_PORT: '3007'
+      EXPLORER_HIDDEN_SERVICE: './volumes/tor/data/app-mempool-rpc/hostname'
+    volumes:
+      - '${CRYPTO_ROOT}/volumes/lightning/lnd:/data/.lnd'
+      - '${CRYPTO_ROOT}/volumes/lightning/gui:/data'
+
+  electrs:
+    container_name: electrs
+    image: getumbrel/electrs:v0.10.2
+    restart: always
+    user: '1024:100'
+    ports:
+      - '50001:50001'
+    networks:
+      crypto:
+        ipv4_address: '10.21.22.5'
+    environment:
+      ELECTRS_LOG_FILTERS: 'INFO'
+      ELECTRS_NETWORK: 'bitcoin'
+      ELECTRS_DAEMON_RPC_ADDR: '10.21.22.3:8332'
+      ELECTRS_DAEMON_P2P_ADDR: '10.21.22.3:8334'
+      ELECTRS_ELECTRUM_RPC_ADDR: '0.0.0.0:50001'
+      ELECTRS_SERVER_BANNER: 'Umbrel Electrs'
+      ELECTRS_DB_DIR: '/data/db'
+    volumes:
+      - '${CRYPTO_ROOT}/volumes/bitcoin/node:/data/.bitcoin:ro'
+      - '${CRYPTO_ROOT}/volumes/electrs:/data'
+
+  electrs_gui:
+    container_name: electrs_gui
+    image: getumbrel/umbrel-electrs:v1.0.2
+    restart: unless-stopped
+    ports:
+      - '3006:3006'
+    networks:
+      crypto:
+        ipv4_address: '10.21.22.6'
+    environment:
+      ELECTRUM_HIDDEN_SERVICE: '${APP_ELECTRS_RPC_HIDDEN_SERVICE}'
+      ELECTRUM_LOCAL_SERVICE: 'crypto.3x3cut0r.synology.me'
+      ELECTRS_HOST: '10.21.22.5'
+      BITCOIN_HOST: '10.21.22.3'
+      RPC_USER: 'bitcoind'
+      RPC_PASSWORD: '${BITCOIN_RPC_PASSWORD}'
+      RPC_PORT: '8332'
+    depends_on:
+      - electrs
+
+  btc_explorer:
+    container_name: btc_explorer
+    image: getumbrel/btc-rpc-explorer:v3.4.0
+    restart: unless-stopped
+    stop_grace_period: 1m
+    ports:
+      - '3007:3007'
+    networks:
+      crypto:
+        ipv4_address: '10.21.22.x'
+    environment:
+      BTCEXP_HOST: '0.0.0.0'
+      BTCEXP_PORT: '3007'
+      BTCEXP_BITCOIND_HOST: '10.21.22.3'
+      BTCEXP_BITCOIND_PORT: '8332'
+      BTCEXP_BITCOIND_USER: 'bitcoind'
+      BTCEXP_BITCOIND_PASS: '${BITCOIN_RPC_PASSWORD}'
+      BTCEXP_ADDRESS_API: 'electrumx'
+      BTCEXP_ELECTRUMX_SERVERS: 'tcp://10.21.22.5:50001'
+      DEBUG: 'btcexp:*,electrumClient'
+      BTCEXP_SLOW_DEVICE_MODE: 'true'
+      BTCEXP_NO_INMEMORY_RPC_CACHE: 'true'
+      BTCEXP_RPC_ALLOWALL: 'false'
+      BTCEXP_BASIC_AUTH_PASSWORD: ''
+      BTCEXP_PRIVACY_MODE: 'false'
+      BTCEXP_LOCAL_CURRENCY: 'aud'
+      BTCEXP_UI_TIMEZONE: 'local'
+
+  mempool_space_web:
+    container_name: mempool_space_web
+    image: mempool/frontend:v2.5.0
+    user: '1024:100'
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 1m
+    command: "./wait-for mempool_space_db:3306 --timeout=720 -- nginx -g 'daemon off;'"
+    ports:
+      - '3007:3007'
+    networks:
+      crypto:
+        ipv4_address: '10.21.22.7'
+    environment:
+      FRONTEND_HTTP_PORT: '3007'
+      BACKEND_MAINNET_HTTP_HOST: '10.21.22.20'
+      NGINX_PORT: '3007'
+      NGINX_HOSTNAME: '10.21.22.20'
+      LIGHTNING_DETECTED_PORT: '9735'
+
+  mempool_space_api:
+    container_name: mempool_space_api
+    image: mempool/backend:v2.5.0
+    user: '1024:100'
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 1m
+    command: './wait-for-it.sh mempool_space_db:3306 --timeout=720 --strict -- ./start.sh'
+    networks:
+      crypto:
+        ipv4_address: '10.21.22.20'
+    environment:
+      CORE_RPC_HOST: '10.21.22.3'
+      CORE_RPC_PORT: '8332'
+      CORE_RPC_USERNAME: 'bitcoind'
+      CORE_RPC_PASSWORD: '${BITCOIN_RPC_PASSWORD}'
+      ELECTRUM_HOST: '10.21.22.5'
+      ELECTRUM_PORT: '50001'
+      ELECTRUM_TLS: 'false'
+      DATABASE_HOST: '10.21.22.21'
+      DATABASE_PORT: '3306'
+      DATABASE_DATABASE: 'mempool'
+      DATABASE_USERNAME: 'mempool'
+      DATABASE_PASSWORD: '${MEMPOOL_DB_PASSWORD}'
+      MEMPOOL_HTTP_PORT: '3007'
+      MEMPOOL_CACHE_DIR: '/backend/cache'
+      MEMPOOL_CLEAR_PROTECTION_MINUTES: '20'
+      MEMPOOL_INDEXING_BLOCKS_AMOUNT: '52560'
+      MEMPOOL_STDOUT_LOG_MIN_PRIORITY: 'info'
+      LIGHTNING_ENABLED: 'false'
+      LIGHTNING_BACKEND: 'lnd'
+      LIGHTNING_STATS_REFRESH_INTERVAL: 3600
+      LIGHTNING_GRAPH_REFRESH_INTERVAL: 3600
+      LND_TLS_CERT_PATH: '/lnd/tls.cert'
+      LND_MACAROON_PATH: '/lnd/data/chain/bitcoin/mainnet/readonly.macaroon'
+      LND_REST_API_URL: 'https://10.21.22.8:8080'
+      LND_TIMEOUT: 120000
+    volumes:
+      - '${CRYPTO_ROOT}/volumes/mempool/data:/backend/cache'
+      - '${CRYPTO_ROOT}/volumes/lightning/lnd:/lnd:ro'
+
+  mempool_space_db:
+    container_name: mempool_space_db
+    image: mariadb:10.5.12
+    user: 'root'
+    restart: unless-stopped
+    stop_grace_period: 1m
+    networks:
+      crypto:
+        ipv4_address: '10.21.22.21'
+    environment:
+      MYSQL_DATABASE: 'mempool'
+      MYSQL_USER: 'mempool'
+      MYSQL_PASSWORD: '${MEMPOOL_DB_PASSWORD}'
+      MYSQL_ROOT_PASSWORD: '${MEMPOOL_DB_ROOT_PASSWORD}'
+    volumes:
+      - '${CRYPTO_ROOT}/volumes/mempool/db:/var/lib/mysql'
+
+networks:
+  crypto:
+    name: crypto
+    ipam:
+      driver: default
+      config:
+        - subnet: '10.21.22.0/24'
+          gateway: 10.21.22.1
