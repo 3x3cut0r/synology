@@ -1,0 +1,23 @@
+services:
+  iobroker:
+    image: iobroker/iobroker:latest
+    container_name: iobroker
+    hostname: iobroker
+    networks:
+      macvlan-ovs_eth1:
+        ipv4_address: 192.168.178.236
+    volumes:
+      - /volume1/docker/iobroker:/opt/iobroker
+    restart: unless-stopped
+    environment:
+      - 'TZ=Europe/Berlin'
+      - 'IOB_ADMINPORT=8081'
+      - 'SETUID=1024'
+      - 'SETGID=100'
+      - 'PACKAGES=vim'
+      - 'PACKAGES_UPDATE=true'
+      - 'AVAHI=true'
+
+networks:
+  macvlan-ovs_eth1:
+    external: true
