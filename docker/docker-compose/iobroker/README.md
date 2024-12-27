@@ -8,7 +8,7 @@
 1. [check network-interface name to creat a macvlan at](#check-iface)
 2. [create a macvlan with portainer](#create-iface)
 3. [create scheduled task on your synology DSM](#triggered-task)
-4. [create docker compose stack for iobroker](#compose)
+4. [deploy / docker-compose.yml](#deploy)
 5. [usage](#usage)
 
 \# [Find Me](#findme)  
@@ -17,13 +17,13 @@
 # 0. prerequisites <a name="prerequisites"></a>
 
 - Synology network is configured
-- SSH is enabled
+- SSH is enabled and you know howto use it
 - Docker is installed
-- Portainer is installed
+- Portainer (as docker container or compose stack) is up and running
 
 # 1. check network-interface name to creat a macvlan at <a name="check-iface"></a>
 
-- connect to your synology via ssh as root
+- connect to your synology via ssh as root and check on which interface your macvlan should be created
 
 ```bash
 # list your available interfaces, check on which is your ip, select one.
@@ -83,7 +83,7 @@ Driver: macvlan
 Macvlan configuration: Configuration
 IPV4 Subnet: <your internet providers private subnet, e.g.: 192.168.178.0/24>
 IPV4 Gateway: <your internet providers gateway/router, e.g.: 192.168.178.1>
-IPV4 Range: <the subnet range, where you want to put your macvlan ips into, e.g. 192.168.178.232/29>
+IPV4 Range: <specify the range that docker should use for containers on the macvlan interface, e.g. 192.168.178.232/29>
 Create the network
 ```
 
@@ -120,35 +120,12 @@ ip addr add 192.168.178.234/32 dev macvlan-br # set ip inside your IPV4 Range on
 ip link set macvlan-br up
 ip route add 192.168.178.232/29 dev macvlan-br
 ```
+
 - Execute the created task once!
 
-# 4. create docker compose stack for iobroker <a name="compose"></a>
+# 4. deploy / docker-compose.yml <a name="deploy"></a>
 
-```bash
-services:
-  iobroker:
-    image: iobroker/iobroker:latest
-    container_name: iobroker
-    hostname: iobroker
-    networks:
-      macvlan-ovs_eth1:
-        ipv4_address: 192.168.178.236
-    volumes:
-      - /volume1/docker/iobroker:/opt/iobroker
-    restart: unless-stopped
-    environment:
-      - "TZ=Europe/Berlin"
-      - "IOB_ADMINPORT=8081"
-      - "SETUID=1024"
-      - "SETGID=100"
-      - "PACKAGES=vim"
-      - "PACKAGES_UPDATE=true"
-      - "AVAHI=true"
-
-networks:
-  macvlan-ovs_eth1:
-    external: true
-```
+**[see docker/docker-compose/iobroker/docker-compose.yml](https://github.com/3x3cut0r/synology/blob/master/docker/docker-compose/iobroker/docker-compose.yml)**
 
 # 5. usage <a name="usage"></a>
 
