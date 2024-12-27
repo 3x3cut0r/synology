@@ -1,6 +1,6 @@
 # iobroker
 
-**docker-compose.yml for iobroker - iobroker is a ...**
+**docker-compose.yml for iobroker**
 
 ## Index
 
